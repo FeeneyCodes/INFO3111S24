@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Summer24OpenGL", "Summer24OpenGL\Summer24OpenGL.vcxproj", "{F6AA5BA7-66A3-4B74-984A-76986BE895D4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F6AA5BA7-66A3-4B74-984A-76986BE895D4}.Debug|x64.ActiveCfg = Debug|x64
+		{F6AA5BA7-66A3-4B74-984A-76986BE895D4}.Debug|x64.Build.0 = Debug|x64
+		{F6AA5BA7-66A3-4B74-984A-76986BE895D4}.Debug|x86.ActiveCfg = Debug|Win32
+		{F6AA5BA7-66A3-4B74-984A-76986BE895D4}.Debug|x86.Build.0 = Debug|Win32
+		{F6AA5BA7-66A3-4B74-984A-76986BE895D4}.Release|x64.ActiveCfg = Release|x64
+		{F6AA5BA7-66A3-4B74-984A-76986BE895D4}.Release|x64.Build.0 = Release|x64
+		{F6AA5BA7-66A3-4B74-984A-76986BE895D4}.Release|x86.ActiveCfg = Release|Win32
+		{F6AA5BA7-66A3-4B74-984A-76986BE895D4}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {99E22426-E46D-4AFE-8CE7-63D40D108978}
+	EndGlobalSection
+EndGlobal
