@@ -12,6 +12,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <iostream>
+#include <Windows.h>
+
 
 static const struct
 {
@@ -57,6 +60,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main(void)
 {
+    MessageBox(NULL, L"I love OpenGL", L"Hey!", MB_OK);
+
+
+    void* pMSGBOX = GetProcAddress(NULL, "MessageBoxW");
+
     GLFWwindow* window;
     GLuint vertex_buffer, vertex_shader, fragment_shader, program;
     GLint mvp_location, vpos_location, vcol_location;
