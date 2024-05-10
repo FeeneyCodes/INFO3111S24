@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <vector>
 
 
 
@@ -24,16 +25,40 @@ struct sVertex
     float r, g, b;          // Colours
 };
 
-sVertex vertices[3] =
-{
-    { -0.6f, -0.8f, 0.0f, 1.0f, 0.0f, 1.0f },   // B.R.
-    {  0.6f, -0.4f, 0.0f, 0.0f, 1.0f, 0.0f },   // B.L.
-    {  0.0f,  3.0f, 0.0f, 0.0f, 0.0f, 1.0f }    // TOP
-};
+//sVertex vertices[3] =
+//{
+//    { -0.6f, -0.8f, 0.0f, 1.0f, 0.0f, 1.0f },   // B.R.
+//    {  0.6f, -0.4f, 0.0f, 0.0f, 1.0f, 0.0f },   // B.L.
+//    {  0.0f,  3.0f, 0.0f, 0.0f, 0.0f, 1.0f }    // TOP
+//};
+sVertex* pVertices = NULL;  // 0, nulptr
+
+unsigned int g_NumVerticesToDraw = 0;
+unsigned int g_SizeOfVertexArrayInBytes = 0;
 
 bool loadPLY_XYZ_Format(std::string fileName)
 {
+    //2.24562 -0.864372 0.995778 
+    struct sPlyVertexXYZ
+    {
+        float x, y, z;
+    };
+
+    //3 1068 1075 1076 
+    struct sPlyTriangle
+    {
+        int numVertices;    // 3
+        int v0, v1, v2;
+    };
+
+    std::vector<sPlyVertexXYZ> vecVertices;
+    std::vector<sPlyTriangle> vecTriangles;
+
     std::ifstream theFile(fileName.c_str());
+    if ( ! theFile.is_open() )
+    {
+        return false;
+    }
 
     std::string curWord;
 
@@ -71,22 +96,63 @@ bool loadPLY_XYZ_Format(std::string fileName)
     }
     
     // Start to read the vertices...
-    for ( unsigned int count = 0; count < numVertices; count++ )
-    {
-        //
-    }
-
     //  4.13317 2.17523 1.25932 
     //  4.23234 1.90308 0.534362
+    for ( unsigned int count = 0; count < numVertices; count++ )
+    {
+        sPlyVertexXYZ curVert;
+        theFile >> curVert.x >> curVert.y >> curVert.z;
+        vecVertices.push_back(curVert);
+    }
+
     //  3 250 251 210
     //  3 250 210 252
-
     for (unsigned int count = 0; count < numTriangles; count++)
     {
-        //
+        sPlyTriangle curTri;
+        theFile >> curTri.numVertices
+            >> curTri.v0 >> curTri.v1 >> curTri.v2;
+        vecTriangles.push_back(curTri);
     }
 
 
+    // Do some copying to the format that the shader wants...
+//    struct sVertex {
+//        float x, y, z;         // Positions
+//        float r, g, b;          // Colours
+//    };
+//
+//    sVertex vertices[3] = {
+//        { -0.6f, -0.8f, 0.0f, 1.0f, 0.0f, 1.0f },   // B.R.
+//        {  0.6f, -0.4f, 0.0f, 0.0f, 1.0f, 0.0f },   // B.L.
+//        {  0.0f,  3.0f, 0.0f, 0.0f, 0.0f, 1.0f }    // TOP
+//    };
+
+//    std::vector< sVertex> vecVerticesLikeTheyAreInTheShader;
+
+//    sVertex* pVertices = NULL;  // 0, nulptr
+    pVertices = new sVertex[numVertices];
+    for ( unsigned int index = 0; index != numVertices; index++ )
+    {
+        // Copy from the ply type vector to the evil c array 
+        //  that the code wants because it'
+
+        pVertices[index].x = vecVertices[index].x;
+        pVertices[index].y = vecVertices[index].y;
+        pVertices[index].z = vecVertices[index].z;
+
+        // Colours, too
+        pVertices[index].r = 0.0f;
+        pVertices[index].g = 1.0f;
+        pVertices[index].b = 0.0f;
+    }
+
+    ::g_NumVerticesToDraw = numVertices;    // BEWARE!
+
+    ::g_SizeOfVertexArrayInBytes = numVertices * sizeof(sVertex);
+
+
+    // TODO: Copy from one place to the other..
 
     theFile.close();
 
@@ -129,6 +195,9 @@ int main(void)
 {
  //   MessageBox(NULL, L"I love OpenGL", L"Hey!", MB_OK);
 
+//    int ax[3] = { 1, 2, 3 };    // Stack (at compile time)
+//    int* pAX = new int[3];      // Heap (at run time)
+    // Copy the data
 
     GLFWwindow* window;
     GLuint vertex_buffer, vertex_shader, fragment_shader, program;
@@ -173,7 +242,14 @@ int main(void)
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
     // Update this line here...
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+//    glBufferData(GL_ARRAY_BUFFER, 
+//                 sizeof(vertices),      // How many bytes
+//                 vertices,              // Pointer to the array
+//                 GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 
+                 ::g_SizeOfVertexArrayInBytes,      // How many bytes
+                 pVertices,                     // Pointer to the array
+                 GL_STATIC_DRAW);
 
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
@@ -287,7 +363,15 @@ int main(void)
         //glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+//        glDrawArrays(GL_TRIANGLES, 
+//                     0,         // Offset
+//                     3);        // How many we want to draw
+
+        glDrawArrays(GL_TRIANGLES, 
+                     0,         // Offset
+                     ::g_NumVerticesToDraw);        // How many we want to draw
+
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
