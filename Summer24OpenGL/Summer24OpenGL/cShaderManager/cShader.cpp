@@ -1,5 +1,5 @@
 #include "cShaderManager.h"
-#include "globalStuff.h"		// glfw.h, etc. (openGL.h)
+#include "../globalOpenGL.h"		// glfw.h, etc. (openGL.h)
 
 cShaderManager::cShader::cShader()
 {

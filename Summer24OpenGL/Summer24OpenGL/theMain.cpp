@@ -1,5 +1,7 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+//#include <glad/glad.h>
+//#include <GLFW/glfw3.h>
+#include "globalOpenGL.h"
+
 //#include "linmath.h"
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp> // glm::vec3
@@ -18,11 +20,15 @@
 #include <vector>
 #include <sstream>
 
+#include "cShaderManager/cShaderManager.h"
+
 
 glm::vec3 g_cameraEye = glm::vec3(0.0, 0.0, -20.0f);
 glm::vec3 g_cameraTarget = glm::vec3(0.0, 0.0, 0.0f);
 
 
+cShaderManager* g_pTheShaderManager = NULL;     // Actual thing is on the HEAP
+//cShaderManager TheShaderManager;                // Stack
 
 struct sVertex
 {
@@ -501,25 +507,25 @@ bool loadPLY_XYZ_Format_Eldritch_Horror(std::string fileName)
 }
 
 
-static const char* vertex_shader_text =
-"#version 110\n"
-"uniform mat4 MVP;\n"
-"attribute vec3 vColour;\n"
-"attribute vec3 vPosition;\n"
-"varying vec3 color;\n"
-"void main()\n"
-"{\n"
-"    gl_Position = MVP * vec4(vPosition, 1.0);\n"
-"    color = vColour;\n"
-"}\n";
-
-static const char* fragment_shader_text =
-"#version 110\n"
-"varying vec3 color;\n"
-"void main()\n"
-"{\n"
-"    gl_FragColor = vec4(color, 1.0);\n"
-"}\n";
+//static const char* vertex_shader_text =
+//"#version 110\n"
+//"uniform mat4 MVP;\n"
+//"attribute vec3 vColour;\n"
+//"attribute vec3 vPosition;\n"
+//"varying vec3 color;\n"
+//"void main()\n"
+//"{\n"
+//"    gl_Position = MVP * vec4(vPosition, 1.0);\n"
+//"    color = vColour;\n"
+//"}\n";
+//
+//static const char* fragment_shader_text =
+//"#version 110\n"
+//"varying vec3 color;\n"
+//"void main()\n"
+//"{\n"
+//"    gl_FragColor = vec4(color, 1.0);\n"
+//"}\n";
 
 static void error_callback(int error, const char* description)
 {
@@ -587,7 +593,10 @@ int main(void)
     // Copy the data
 
     GLFWwindow* window;
-    GLuint vertex_buffer, vertex_shader, fragment_shader, program;
+    GLuint vertex_buffer;
+//    GLuint vertex_shader;
+//    GLuint fragment_shader;
+    GLuint program = 0;
     GLint mvp_location;
 
     GLint vpos_location;
@@ -639,18 +648,47 @@ int main(void)
                  pVertices,                     // Pointer to the array
                  GL_STATIC_DRAW);
 
-    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
-    glCompileShader(vertex_shader);
+//    cShaderManager* g_pTheShaderManager = NULL;   
 
-    fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
-    glCompileShader(fragment_shader);
-    program = glCreateProgram();
+    // int x = 0;
+    // int* pX = new int(); // Same thing
+    ::g_pTheShaderManager = new cShaderManager();
 
-    glAttachShader(program, vertex_shader);
-    glAttachShader(program, fragment_shader);
-    glLinkProgram(program);
+    cShaderManager::cShader vertShader;
+    vertShader.fileName = "vertexShader01.glsl";
+
+    cShaderManager::cShader fragShader;
+    fragShader.fileName = "fragShader01.glsl";
+
+    ::g_pTheShaderManager->setBasePath("assets/shaders/");
+
+    if ( ::g_pTheShaderManager->createProgramFromFile("shader1", vertShader, fragShader ) )
+    {
+        std::cout << "Hazzah! Compiled OK" << std::endl;
+    }
+    else
+    {
+        std::cout << "Shader creation error: "
+            << ::g_pTheShaderManager->getLastError()
+            << std::endl;
+    }
+
+    // Set the shader to the one we want
+    program = ::g_pTheShaderManager->getIDFromFriendlyName("shader1");
+
+
+ //   vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+ //   glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
+ //   glCompileShader(vertex_shader);
+ //
+ //   fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+ //   glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
+ //   glCompileShader(fragment_shader);
+ //
+//   program = glCreateProgram();
+//   glAttachShader(program, vertex_shader);
+//   glAttachShader(program, fragment_shader);
+//   glLinkProgram(program);
 
 
     mvp_location = glGetUniformLocation(program, "MVP");
@@ -758,7 +796,7 @@ int main(void)
 //                     0,         // Offset
 //                     3);        // How many we want to draw
 
-        glDrawArrays(GL_TRIANGLES, 
+         glDrawArrays(GL_TRIANGLES, 
                      0,         // Offset
                      ::g_NumVerticesToDraw);        // How many we want to draw
 
