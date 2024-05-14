@@ -21,6 +21,7 @@
 #include <sstream>
 
 #include "cShaderManager/cShaderManager.h"
+#include "cVAOManager/cVAOManager.h"
 
 
 glm::vec3 g_cameraEye = glm::vec3(0.0, 0.0, -20.0f);
@@ -29,6 +30,8 @@ glm::vec3 g_cameraTarget = glm::vec3(0.0, 0.0, 0.0f);
 
 cShaderManager* g_pTheShaderManager = NULL;     // Actual thing is on the HEAP
 //cShaderManager TheShaderManager;                // Stack
+
+cVAOManager* g_pMeshManager = NULL;
 
 struct sVertex
 {
@@ -635,18 +638,20 @@ int main(void)
         return -1;
     }
 
-    // NOTE: OpenGL error checks have been omitted for brevity
-    glGenBuffers(1, &vertex_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    // Update this line here...
+//    // NOTE: OpenGL error checks have been omitted for brevity
+//    glGenBuffers(1, &vertex_buffer);
+//    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+//    // Update this line here...
+////    glBufferData(GL_ARRAY_BUFFER, 
+////                 sizeof(vertices),      // How many bytes
+////                 vertices,              // Pointer to the array
+////                 GL_STATIC_DRAW);
 //    glBufferData(GL_ARRAY_BUFFER, 
-//                 sizeof(vertices),      // How many bytes
-//                 vertices,              // Pointer to the array
+//                 ::g_SizeOfVertexArrayInBytes,      // How many bytes
+//                 pVertices,                     // Pointer to the array
 //                 GL_STATIC_DRAW);
-    glBufferData(GL_ARRAY_BUFFER, 
-                 ::g_SizeOfVertexArrayInBytes,      // How many bytes
-                 pVertices,                     // Pointer to the array
-                 GL_STATIC_DRAW);
+
+
 
 //    cShaderManager* g_pTheShaderManager = NULL;   
 
@@ -690,13 +695,12 @@ int main(void)
 //   glAttachShader(program, fragment_shader);
 //   glLinkProgram(program);
 
-
     mvp_location = glGetUniformLocation(program, "MVP");
 
-    vpos_location = glGetAttribLocation(program, "vPosition");  // 17
-    vcol_location = glGetAttribLocation(program, "vColour");
-
-//   struct sVertex
+//    vpos_location = glGetAttribLocation(program, "vPosition");  // 17
+//    vcol_location = glGetAttribLocation(program, "vColour");
+//
+////   struct sVertex
 //   {
 //       float x, y;         // Positions
 //       float r, g, b;      // Colours
@@ -710,36 +714,52 @@ int main(void)
 //   };
 // 
 //  
-
-
-    // attribute vec2 vPosition;
-    glEnableVertexAttribArray(vpos_location);
-    glVertexAttribPointer(vpos_location,        // Index: vPosition
-                          3,    // (now xyz)        // 2, 
-                          GL_FLOAT, 
-                          GL_FALSE,             // "normalized" or "clamped" -1 to 1
-                          sizeof(sVertex),      // Stride
-                          (void*)offsetof(sVertex, x) );            // Offset
-//                          sizeof(vertices[0]), 
-//                         (void*)0);            // Offset
-
-//    int x = 656;
+//
+//
+//    // attribute vec2 vPosition;
+//    glEnableVertexAttribArray(vpos_location);
+//    glVertexAttribPointer(vpos_location,        // Index: vPosition
+//                          3,    // (now xyz)        // 2, 
+//                          GL_FLOAT, 
+//                          GL_FALSE,             // "normalized" or "clamped" -1 to 1
+//                          sizeof(sVertex),      // Stride
+//                          (void*)offsetof(sVertex, x) );            // Offset
+////                          sizeof(vertices[0]), 
+////                         (void*)0);            // Offset
+//
+////    int x = 656;
 //    int* pX = &x;       // Pointer to x (type: integer pointer)
 //    void* pOMG = &x;    // Type is a pointer to whatever
 //    pOMG = key_callback;
 //    std::cout << *(std::string*)(pOMG);
 //    std::cout << (int*)(pOMG);
+//
+//    // attribute vec3 vColour;
+//    glEnableVertexAttribArray(vcol_location);
+//    glVertexAttribPointer(vcol_location,        // Index: vColour
+//                          3, 
+//                          GL_FLOAT, 
+//                          GL_FALSE,
+//                          sizeof(sVertex),      // Stride
+//                          (void*)offsetof(sVertex, r) );    // Offset
+////                          sizeof(vertices[0]), 
+////                          (void*)(sizeof(float) * 2));
+//
 
-    // attribute vec3 vColour;
-    glEnableVertexAttribArray(vcol_location);
-    glVertexAttribPointer(vcol_location,        // Index: vColour
-                          3, 
-                          GL_FLOAT, 
-                          GL_FALSE,
-                          sizeof(sVertex),      // Stride
-                          (void*)offsetof(sVertex, r) );    // Offset
-//                          sizeof(vertices[0]), 
-//                          (void*)(sizeof(float) * 2));
+    // Load the models
+    ::g_pMeshManager = new cVAOManager();
+
+    sModelDrawInfo meshInfoCow;
+    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/cow_xyz_rgba.ply", meshInfoCow, program ) )
+    {
+        std::cout << "ERROR: Didn't load the cow" << std::endl;
+    }
+
+    sModelDrawInfo carMeshInfo;
+    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/de--lorean_xyz_rgba.ply", carMeshInfo, program ) )
+    {
+        std::cout << "ERROR: Didn't load the cow" << std::endl;
+    }
 
    
     while (!glfwWindowShouldClose(window))
@@ -796,10 +816,37 @@ int main(void)
 //                     0,         // Offset
 //                     3);        // How many we want to draw
 
-         glDrawArrays(GL_TRIANGLES, 
-                     0,         // Offset
-                     ::g_NumVerticesToDraw);        // How many we want to draw
+//         glDrawArrays(GL_TRIANGLES, 
+//                     0,         // Offset
+//                     ::g_NumVerticesToDraw);        // How many we want to draw
 
+        sModelDrawInfo modelToDraw;
+        if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/de--lorean_xyz_rgba.ply", modelToDraw ) )
+        {
+            // Found it!
+            glBindVertexArray(modelToDraw.VAO_ID);
+
+            glDrawElements(GL_TRIANGLES, 
+                           modelToDraw.numberOfIndices, 
+                           GL_UNSIGNED_INT, 
+                           (void*) 0 );
+
+            glBindVertexArray(0);
+        }
+
+        sModelDrawInfo modelToDrawCOW;
+        if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/cow_xyz_rgba.ply", modelToDrawCOW) )
+        {
+            // Found it!
+            glBindVertexArray(modelToDrawCOW.VAO_ID);
+
+            glDrawElements(GL_TRIANGLES, 
+                           modelToDrawCOW.numberOfIndices,
+                           GL_UNSIGNED_INT, 
+                           (void*) 0 );
+
+            glBindVertexArray(0);
+        }
 
         // Update the window title to show where the camera is...
         std::stringstream ssWindowsTitle;

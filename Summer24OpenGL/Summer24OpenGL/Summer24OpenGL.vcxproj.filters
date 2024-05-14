@@ -16,6 +16,9 @@
     <Filter Include="ShaderManager">
       <UniqueIdentifier>{1ea8ea24-9958-4ffc-8522-8c55ce434b1f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MeshManager">
+      <UniqueIdentifier>{32a72b7d-eb60-4245-905e-8820cbd757ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="theMain.cpp">
@@ -30,6 +33,9 @@
     <ClCompile Include="cShaderManager\cShaderManager.cpp">
       <Filter>ShaderManager</Filter>
     </ClCompile>
+    <ClCompile Include="cVAOManager\cVAOManager.cpp">
+      <Filter>MeshManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cShaderManager\cShaderManager.h">
@@ -37,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="globalOpenGL.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cVAOManager\cVAOManager.h">
+      <Filter>MeshManager</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
