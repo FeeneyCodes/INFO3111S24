@@ -23,9 +23,15 @@
 #include "cShaderManager/cShaderManager.h"
 #include "cVAOManager/cVAOManager.h"
 
+#include <vector>
+#include "cMeshObject.h"
+
 
 glm::vec3 g_cameraEye = glm::vec3(0.0, 0.0, -20.0f);
 glm::vec3 g_cameraTarget = glm::vec3(0.0, 0.0, 0.0f);
+
+// note that this is a pointer because 
+std::vector< cMeshObject* > g_MeshesToDraw;
 
 
 cShaderManager* g_pTheShaderManager = NULL;     // Actual thing is on the HEAP
@@ -769,7 +775,7 @@ int main(void)
 ////                          (void*)(sizeof(float) * 2));
 //
 
-    // Load the models
+    // Load all the TYPES of models I can draw
     ::g_pMeshManager = new cVAOManager();
 
     sModelDrawInfo meshInfoCow;
@@ -789,6 +795,29 @@ int main(void)
     {
         std::cout << "ERROR: Didn't load the cow" << std::endl;
     }
+
+
+    // Load the models I'd like to draw in the scene
+    cMeshObject* pCow = new cMeshObject();
+    pCow->meshFileName = "assets/models/cow_xyz_rgba.ply";
+    ::g_MeshesToDraw.push_back(pCow);
+
+    cMeshObject* pCow2 = new cMeshObject();
+    pCow2->meshFileName = "assets/models/cow_xyz_rgba.ply";
+    ::g_MeshesToDraw.push_back(pCow2);
+
+    cMeshObject* pCar = new cMeshObject();
+    pCar->meshFileName = "assets/models/de--lorean_xyz_rgba.ply";
+    ::g_MeshesToDraw.push_back(pCar);
+
+
+
+
+    // Enable the depth text per pixel
+    glEnable(GL_DEPTH_TEST);
+
+    // Don't draw the "back" part of the objects.
+//    glCullFace(GL_BACK);
    
     // Main loop runs forever
     while ( ! glfwWindowShouldClose(window) )
@@ -802,98 +831,84 @@ int main(void)
         glViewport(0, 0, width, height);
 
         // Clear the screen
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        //         mat4x4_identity(m);
-        m = glm::mat4(1.0f);
-
-        //mat4x4_rotate_Z(m, m, (float) glfwGetTime());
-        glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f),
-                                        (float)glfwGetTime(),
-                                        glm::vec3(0.0f, 0.0, 1.0f));
-
-//        m = m * rotateZ;
-
-        //mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        p = glm::perspective(0.6f,
-                             ratio,
-                             0.1f,
-                             1000.0f);
-
-        v = glm::mat4(1.0f);
-
-//        glm::vec3 cameraEye = glm::vec3(0.0, 0.0, -20.0f);
-//        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-        glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
-
-        v = glm::lookAt(::g_cameraEye,
-                        ::g_cameraTarget,
-                        upVector);
-
-       //mat4x4_mul(mvp, p, m);
-        mvp = p * v * m;
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-        glUseProgram(program);
-
-        // GL_LINE gives you "wireframe"
-        // GL_FILL is default (fully rendered)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-        //glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
-
-//        glDrawArrays(GL_TRIANGLES, 
-//                     0,         // Offset
-//                     3);        // How many we want to draw
-
-//         glDrawArrays(GL_TRIANGLES, 
-//                     0,         // Offset
-//                     ::g_NumVerticesToDraw);        // How many we want to draw
-
-        //sModelDrawInfo modelToDraw;
-        //if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/de--lorean_xyz_rgba.ply", modelToDraw ) )
-        //{
-        //    // Found it!
-        //    glBindVertexArray(modelToDraw.VAO_ID);
-
-        //    glDrawElements(GL_TRIANGLES, 
-        //                   modelToDraw.numberOfIndices, 
-        //                   GL_UNSIGNED_INT, 
-        //                   (void*) 0 );
-
-        //    glBindVertexArray(0);
-        //}
-
-        //sModelDrawInfo modelToDrawCOW;
-        //if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/cow_xyz_rgba.ply", modelToDrawCOW) )
-        //{
-        //    // Found it!
-        //    glBindVertexArray(modelToDrawCOW.VAO_ID);
-
-        //    glDrawElements(GL_TRIANGLES, 
-        //                   modelToDrawCOW.numberOfIndices,
-        //                   GL_UNSIGNED_INT, 
-        //                   (void*) 0 );
-
-        //    glBindVertexArray(0);
-        //}
-
-        sModelDrawInfo teapotModel;
-        if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/Utah_Teapot_xyz_rgba.ply", teapotModel) )
+        // Start drawing the scene
+        for ( unsigned int index = 0; index != ::g_MeshesToDraw.size(); index++ )
         {
-            // Found it!
-            glBindVertexArray(teapotModel.VAO_ID);
 
-            glDrawElements(GL_TRIANGLES, 
-                           teapotModel.numberOfIndices,
-                           GL_UNSIGNED_INT, 
-                           (void*) 0 );
+            cMeshObject* pCurrentMesh = ::g_MeshesToDraw[index];
 
-            glBindVertexArray(0);
-        }
 
-        // Update the window title to show where the camera is...
+       //         mat4x4_identity(m);
+            m = glm::mat4(1.0f);
+
+            //mat4x4_rotate_Z(m, m, (float) glfwGetTime());
+            glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f),
+                                            (float)glfwGetTime(),
+                                            glm::vec3(0.0f, 0.0, 1.0f));
+
+    //        m = m * rotateZ;
+
+            //mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+            p = glm::perspective(0.6f,
+                                 ratio,
+                                 0.1f,
+                                 1000.0f);
+
+            v = glm::mat4(1.0f);
+
+    //        glm::vec3 cameraEye = glm::vec3(0.0, 0.0, -20.0f);
+    //        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+            glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
+
+            v = glm::lookAt(::g_cameraEye,
+                            ::g_cameraTarget,
+                            upVector);
+
+           //mat4x4_mul(mvp, p, m);
+            mvp = p * v * m;
+
+
+            glUseProgram(program);
+
+            // GL_LINE gives you "wireframe"
+            // GL_FILL is default (fully rendered)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+            //glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+            glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
+
+    //        glDrawArrays(GL_TRIANGLES, 
+    //                     0,         // Offset
+    //                     3);        // How many we want to draw
+
+    //         glDrawArrays(GL_TRIANGLES, 
+    //                     0,         // Offset
+    //                     ::g_NumVerticesToDraw);        // How many we want to draw
+
+
+            sModelDrawInfo modelInfo;
+            if (::g_pMeshManager->FindDrawInfoByModelName(pCurrentMesh->meshFileName, modelInfo))
+            {
+                // Found it!
+                glBindVertexArray(modelInfo.VAO_ID);
+
+                glDrawElements(GL_TRIANGLES,
+                               modelInfo.numberOfIndices,
+                               GL_UNSIGNED_INT,
+                               (void*)0);
+
+                glBindVertexArray(0);
+            }
+
+        }//for ( unsigned int index 
+
+
+         
+         
+         // Update the window title to show where the camera is...
         std::stringstream ssWindowsTitle;
 //        std::cout 
         ssWindowsTitle

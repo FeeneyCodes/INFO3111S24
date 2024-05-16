@@ -36,6 +36,9 @@
     <ClCompile Include="cVAOManager\cVAOManager.cpp">
       <Filter>MeshManager</Filter>
     </ClCompile>
+    <ClCompile Include="cMeshObject.cpp">
+      <Filter>MeshManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cShaderManager\cShaderManager.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cVAOManager\cVAOManager.h">
+      <Filter>MeshManager</Filter>
+    </ClInclude>
+    <ClInclude Include="cMeshObject.h">
       <Filter>MeshManager</Filter>
     </ClInclude>
   </ItemGroup>
