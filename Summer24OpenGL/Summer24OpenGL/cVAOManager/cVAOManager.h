@@ -55,6 +55,10 @@ public:
 						  sModelDrawInfo &drawInfo, 
 						  unsigned int shaderProgramID);
 
+	bool LoadModelIntoVAO_XYZ_ONLY(std::string fileName, 
+						  sModelDrawInfo &drawInfo, 
+						  unsigned int shaderProgramID);
+
 	// We don't want to return an int, likely
 	bool FindDrawInfoByModelName(std::string filename,
 								 sModelDrawInfo &drawInfo);

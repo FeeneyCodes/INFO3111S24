@@ -58,6 +58,30 @@ bool cVAOManager::LoadModelIntoVAO(
 		return false;
 	}
 
+
+	// Move model
+	for ( unsigned int index = 0; index != drawInfo.numberOfVertices; index++ )
+	{
+		drawInfo.pVertices[index].x *= 0.1f;
+		drawInfo.pVertices[index].y *= 0.1f;
+		drawInfo.pVertices[index].z *= 0.1f;
+
+		//drawInfo.pVertices[index].r = (rand() % 255)/255.0f;
+		//drawInfo.pVertices[index].g = (rand() % 255) / 255.0f;
+		//drawInfo.pVertices[index].b = (rand() % 255) / 255.0f;
+
+		//// z goes from -25 to 40
+		//float rangeX = 40.0f - (-25.0f);
+
+		//// Where's the z in this range
+		//float zColour = drawInfo.pVertices[index].z / rangeX;
+		//drawInfo.pVertices[index].r = zColour;
+		//drawInfo.pVertices[index].g = zColour;
+		//drawInfo.pVertices[index].b = zColour;
+	}
+
+
+
 	// 
 	// Model is loaded and the vertices and indices are in the drawInfo struct
 	// 

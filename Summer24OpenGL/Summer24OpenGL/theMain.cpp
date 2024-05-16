@@ -545,6 +545,28 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
     const float CAMERA_SPEED = 0.1f;
 
+    if ( mods == GLFW_MOD_SHIFT )       // 0001   // 0010  // 0100  // 0111
+    {
+        // ONLY the shift key (either one) is down
+        
+
+    }//if ( mods == GLFW_MOD_SHIFT )
+
+    // If one of the keys is shift
+    //  Shift -- 0001
+    //  Cont  -- 0010
+    //  Alt   -- 0100
+    // Press all 3 --> 0111
+    //     & 0001  --- 0001 // "bitwise and is a 'mask' operation
+    //             --------
+    //                 0001
+
+    if ( ( mods & GLFW_MOD_SHIFT ) == GLFW_MOD_SHIFT )
+    {
+        // Then shift (and maybe something else) is down
+
+    }
+
     // Move the camera 
     if (key == GLFW_KEY_A )
     {
@@ -622,6 +644,7 @@ int main(void)
     }
 
     glfwSetKeyCallback(window, key_callback);
+
     glfwMakeContextCurrent(window);
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     glfwSwapInterval(1);
@@ -761,8 +784,14 @@ int main(void)
         std::cout << "ERROR: Didn't load the cow" << std::endl;
     }
 
+    sModelDrawInfo teapotMeshInfo;
+    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/Utah_Teapot_xyz_rgba.ply", teapotMeshInfo, program ) )
+    {
+        std::cout << "ERROR: Didn't load the cow" << std::endl;
+    }
    
-    while (!glfwWindowShouldClose(window))
+    // Main loop runs forever
+    while ( ! glfwWindowShouldClose(window) )
     {
         float ratio;
         int width, height;
@@ -771,6 +800,8 @@ int main(void)
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float)height;
         glViewport(0, 0, width, height);
+
+        // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT);
 
         //         mat4x4_identity(m);
@@ -820,28 +851,42 @@ int main(void)
 //                     0,         // Offset
 //                     ::g_NumVerticesToDraw);        // How many we want to draw
 
-        sModelDrawInfo modelToDraw;
-        if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/de--lorean_xyz_rgba.ply", modelToDraw ) )
+        //sModelDrawInfo modelToDraw;
+        //if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/de--lorean_xyz_rgba.ply", modelToDraw ) )
+        //{
+        //    // Found it!
+        //    glBindVertexArray(modelToDraw.VAO_ID);
+
+        //    glDrawElements(GL_TRIANGLES, 
+        //                   modelToDraw.numberOfIndices, 
+        //                   GL_UNSIGNED_INT, 
+        //                   (void*) 0 );
+
+        //    glBindVertexArray(0);
+        //}
+
+        //sModelDrawInfo modelToDrawCOW;
+        //if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/cow_xyz_rgba.ply", modelToDrawCOW) )
+        //{
+        //    // Found it!
+        //    glBindVertexArray(modelToDrawCOW.VAO_ID);
+
+        //    glDrawElements(GL_TRIANGLES, 
+        //                   modelToDrawCOW.numberOfIndices,
+        //                   GL_UNSIGNED_INT, 
+        //                   (void*) 0 );
+
+        //    glBindVertexArray(0);
+        //}
+
+        sModelDrawInfo teapotModel;
+        if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/Utah_Teapot_xyz_rgba.ply", teapotModel) )
         {
             // Found it!
-            glBindVertexArray(modelToDraw.VAO_ID);
+            glBindVertexArray(teapotModel.VAO_ID);
 
             glDrawElements(GL_TRIANGLES, 
-                           modelToDraw.numberOfIndices, 
-                           GL_UNSIGNED_INT, 
-                           (void*) 0 );
-
-            glBindVertexArray(0);
-        }
-
-        sModelDrawInfo modelToDrawCOW;
-        if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/cow_xyz_rgba.ply", modelToDrawCOW) )
-        {
-            // Found it!
-            glBindVertexArray(modelToDrawCOW.VAO_ID);
-
-            glDrawElements(GL_TRIANGLES, 
-                           modelToDrawCOW.numberOfIndices,
+                           teapotModel.numberOfIndices,
                            GL_UNSIGNED_INT, 
                            (void*) 0 );
 
@@ -864,6 +909,8 @@ int main(void)
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+
     glfwDestroyWindow(window);
     glfwTerminate();
     exit(EXIT_SUCCESS);
