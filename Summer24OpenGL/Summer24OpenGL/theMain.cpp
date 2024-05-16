@@ -543,7 +543,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 
-    const float CAMERA_SPEED = 0.1f;
+    const float CAMERA_SPEED = 1.0f;
 
     // Move the camera 
     if (key == GLFW_KEY_A )
@@ -749,16 +749,28 @@ int main(void)
     // Load the models
     ::g_pMeshManager = new cVAOManager();
 
-    sModelDrawInfo meshInfoCow;
-    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/cow_xyz_rgba.ply", meshInfoCow, program ) )
-    {
-        std::cout << "ERROR: Didn't load the cow" << std::endl;
-    }
+    //sModelDrawInfo meshInfoCow;
+    //if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/cow_xyz_rgba.ply", meshInfoCow, program ) )
+    //{
+    //    std::cout << "ERROR: Didn't load the cow" << std::endl;
+    //}
 
     sModelDrawInfo carMeshInfo;
-    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/de--lorean_xyz_rgba.ply", carMeshInfo, program ) )
+    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/de--lorean_xyz_rgba_CP3.ply", carMeshInfo, program ) )
     {
-        std::cout << "ERROR: Didn't load the cow" << std::endl;
+        std::cout << "ERROR: Didn't load the delorean" << std::endl;
+    }
+
+    sModelDrawInfo audiMeshInfo;
+    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/AUDI_TT_COUPE_xyz_rgba.ply", audiMeshInfo, program ) )
+    {
+        std::cout << "ERROR: Didn't load the Audi" << std::endl;
+    }
+
+    sModelDrawInfo busMeshInfo;
+    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/bus_xyz_rgba.ply", busMeshInfo, program ) )
+    {
+        std::cout << "ERROR: Didn't load the hippie bus" << std::endl;
     }
 
    
@@ -821,7 +833,7 @@ int main(void)
 //                     ::g_NumVerticesToDraw);        // How many we want to draw
 
         sModelDrawInfo modelToDraw;
-        if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/de--lorean_xyz_rgba.ply", modelToDraw ) )
+        if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/de--lorean_xyz_rgba_CP3.ply", modelToDraw ) )
         {
             // Found it!
             glBindVertexArray(modelToDraw.VAO_ID);
@@ -834,16 +846,44 @@ int main(void)
             glBindVertexArray(0);
         }
 
-        sModelDrawInfo modelToDrawCOW;
-        if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/cow_xyz_rgba.ply", modelToDrawCOW) )
+        //sModelDrawInfo modelToDrawCOW;
+        //if ( ::g_pMeshManager->FindDrawInfoByModelName( "assets/models/cow_xyz_rgba.ply", modelToDrawCOW) )
+        //{
+        //    // Found it!
+        //    glBindVertexArray(modelToDrawCOW.VAO_ID);
+
+        //    glDrawElements(GL_TRIANGLES, 
+        //                   modelToDrawCOW.numberOfIndices,
+        //                   GL_UNSIGNED_INT, 
+        //                   (void*) 0 );
+
+        //    glBindVertexArray(0);
+        //}
+
+        sModelDrawInfo modelToDrawAudi;
+        if (::g_pMeshManager->FindDrawInfoByModelName("assets/models/AUDI_TT_COUPE_xyz_rgba.ply", modelToDrawAudi))
         {
             // Found it!
-            glBindVertexArray(modelToDrawCOW.VAO_ID);
+            glBindVertexArray(modelToDrawAudi.VAO_ID);
 
-            glDrawElements(GL_TRIANGLES, 
-                           modelToDrawCOW.numberOfIndices,
-                           GL_UNSIGNED_INT, 
-                           (void*) 0 );
+            glDrawElements(GL_TRIANGLES,
+                modelToDrawAudi.numberOfIndices,
+                GL_UNSIGNED_INT,
+                (void*)0);
+
+            glBindVertexArray(0);
+        }
+
+        sModelDrawInfo modelToDrawBus;
+        if (::g_pMeshManager->FindDrawInfoByModelName("assets/models/mig29_xyz_rgba.ply", modelToDrawBus))
+        {
+            // Found it!
+            glBindVertexArray(modelToDrawBus.VAO_ID);
+
+            glDrawElements(GL_TRIANGLES,
+                modelToDrawBus.numberOfIndices,
+                GL_UNSIGNED_INT,
+                (void*)0);
 
             glBindVertexArray(0);
         }
