@@ -22,7 +22,13 @@ public:
 	glm::vec3 orientation;	// Euler axes
 //	glm::vec3 scaleXYZ;
 	float scale;			// Uniform scale 
-	glm::vec4 colourRGBA;
+
+	// If true, then use the colourRGB
+	bool bOverrideVertexModelColour;
+	glm::vec3 colourRGB;
+
+	bool bIsWireFrame;
+	bool bIsVisible;
 
 	// For later: child objects
 	std::vector< cMeshObject* > vec_pChildObjects;

@@ -628,7 +628,7 @@ int main(void)
 //    GLuint vertex_shader;
 //    GLuint fragment_shader;
     GLuint program = 0;
-    GLint mvp_location;
+//    GLint mvp_location;
 
     GLint vpos_location;
     GLint vcol_location;
@@ -724,7 +724,7 @@ int main(void)
 //   glAttachShader(program, fragment_shader);
 //   glLinkProgram(program);
 
-    mvp_location = glGetUniformLocation(program, "MVP");
+    //mvp_location = glGetUniformLocation(program, "MVP");
 
 //    vpos_location = glGetAttribLocation(program, "vPosition");  // 17
 //    vcol_location = glGetAttribLocation(program, "vColour");
@@ -800,18 +800,29 @@ int main(void)
     // Load the models I'd like to draw in the scene
     cMeshObject* pCow = new cMeshObject();
     pCow->meshFileName = "assets/models/cow_xyz_rgba.ply";
+    pCow->bIsWireFrame = false;
+    pCow->position.x = -10.f;
     ::g_MeshesToDraw.push_back(pCow);
 
     cMeshObject* pCow2 = new cMeshObject();
     pCow2->meshFileName = "assets/models/cow_xyz_rgba.ply";
+    pCow2->bIsWireFrame = false;
+    pCow2->position.x = +10.0f;
+    pCow2->scale = 0.5f;
+    pCow->orientation.z = glm::radians(-45.0f);
+    pCow2->bOverrideVertexModelColour = true;
+    pCow2->colourRGB = glm::vec3(0.0f, 1.0f, 0.0f);
     ::g_MeshesToDraw.push_back(pCow2);
 
     cMeshObject* pCar = new cMeshObject();
     pCar->meshFileName = "assets/models/de--lorean_xyz_rgba.ply";
+    pCar->orientation.x = glm::radians(-90.0f);
+    pCar->position.z = 25.0f;
+    pCar->bIsWireFrame = true;
     ::g_MeshesToDraw.push_back(pCar);
 
-
-
+    // Choose the shader program we're using
+    glUseProgram(program);
 
     // Enable the depth text per pixel
     glEnable(GL_DEPTH_TEST);
@@ -825,7 +836,7 @@ int main(void)
         float ratio;
         int width, height;
  //       mat4x4 m, p, mvp;
-        glm::mat4 m, p, v, mvp;
+ //       glm::mat4 m, p, v, mvp;
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float)height;
         glViewport(0, 0, width, height);
@@ -834,51 +845,111 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
+        //mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+        glm::mat4 matProjection = glm::perspective(0.6f,
+                             ratio,
+                             0.1f,
+                             1000.0f);
+
+
+
+        glm::mat4 matView = glm::mat4(1.0f);
+
+//        glm::vec3 cameraEye = glm::vec3(0.0, 0.0, -20.0f);
+//        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
+
+        matView = glm::lookAt(::g_cameraEye,
+                              ::g_cameraTarget,
+                              upVector);
+
+       //mat4x4_mul(mvp, p, m);
+//        mvp = p * v * m;
+
+
+
+
         // Start drawing the scene
         for ( unsigned int index = 0; index != ::g_MeshesToDraw.size(); index++ )
         {
 
             cMeshObject* pCurrentMesh = ::g_MeshesToDraw[index];
 
+            // Is it visible?
+            if ( ! pCurrentMesh->bIsVisible ) 
+            {
+                // Skip it
+                continue;
+            }
+
 
        //         mat4x4_identity(m);
-            m = glm::mat4(1.0f);
+            glm::mat4 matModel = glm::mat4(1.0f);
 
-            //mat4x4_rotate_Z(m, m, (float) glfwGetTime());
-            glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f),
-                                            (float)glfwGetTime(),
-                                            glm::vec3(0.0f, 0.0, 1.0f));
+            glm::mat4 matTranslation = glm::translate(glm::mat4(1.0f),
+                                                      pCurrentMesh->position);
+
+            glm::mat4 matRotateX = glm::rotate(glm::mat4(1.0f),
+                                               pCurrentMesh->orientation.x,
+                                               glm::vec3(1.0f, 0.0f, 0.0f));
+
+            glm::mat4 matRotateY = glm::rotate(glm::mat4(1.0f),
+                                               pCurrentMesh->orientation.y,
+                                               glm::vec3(0.0f, 1.0f, 0.0f));
+
+            glm::mat4 matRotateZ = glm::rotate(glm::mat4(1.0f),
+                                               pCurrentMesh->orientation.z,
+                                               glm::vec3(0.0f, 0.0f, 1.0f));
+
+            glm::mat4 matScaleXYZ = glm::scale(glm::mat4(1.0f), 
+                                               glm::vec3(pCurrentMesh->scale,
+                                                         pCurrentMesh->scale,
+                                                         pCurrentMesh->scale));
+
+            matModel = matModel * matTranslation;
+
+            matModel = matModel * matRotateX;
+            matModel = matModel * matRotateY;
+            matModel = matModel * matRotateZ;
+
+            matModel = matModel * matScaleXYZ;
+
+
+            ////mat4x4_rotate_Z(m, m, (float) glfwGetTime());
+            //glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f),
+            //                                (float)glfwGetTime(),
+            //                                glm::vec3(0.0f, 0.0, 1.0f));
 
     //        m = m * rotateZ;
 
-            //mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-            p = glm::perspective(0.6f,
-                                 ratio,
-                                 0.1f,
-                                 1000.0f);
-
-            v = glm::mat4(1.0f);
-
-    //        glm::vec3 cameraEye = glm::vec3(0.0, 0.0, -20.0f);
-    //        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-            glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
-
-            v = glm::lookAt(::g_cameraEye,
-                            ::g_cameraTarget,
-                            upVector);
-
-           //mat4x4_mul(mvp, p, m);
-            mvp = p * v * m;
 
 
-            glUseProgram(program);
+            //glUseProgram(program);
 
             // GL_LINE gives you "wireframe"
             // GL_FILL is default (fully rendered)
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            if ( pCurrentMesh->bIsWireFrame )
+            {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            }
+            else
+            {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            }
+//            glPointSize(10);
+            
 
-            //glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
-            glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(mvp));
+//            // Copying the mvp matrix to the shader
+//            glm::mat4 mvp;
+//            GLint mvp_location = glGetUniformLocation(program, "MVP");
+//
+////            glGetUniformLocation(program, "objectColourOverride")
+////            glSetThisVariable("objectColourOverride", 2);
+//
+//            glUniformMatrix4fv(mvp_location,
+//                               1, 
+//                               GL_FALSE, 
+//                               glm::value_ptr(mvp) );
 
     //        glDrawArrays(GL_TRIANGLES, 
     //                     0,         // Offset
@@ -887,6 +958,48 @@ int main(void)
     //         glDrawArrays(GL_TRIANGLES, 
     //                     0,         // Offset
     //                     ::g_NumVerticesToDraw);        // How many we want to draw
+
+
+            // I removed MVP from the shader and am 
+            //  passing the m, v, and p on thier own
+            //uniform mat4 mProj;
+            //uniform mat4 mView;
+            //uniform mat4 mModel;
+
+            GLint mProj_location = glGetUniformLocation(program, "mProj");
+            GLint mView_location = glGetUniformLocation(program, "mView");
+            GLint mModel_location = glGetUniformLocation(program, "mModel");
+
+            glUniformMatrix4fv(mProj_location, 1, GL_FALSE, 
+                               glm::value_ptr(matProjection) );
+
+            glUniformMatrix4fv(mView_location, 1, GL_FALSE,
+                               glm::value_ptr(matView) );
+
+            glUniformMatrix4fv(mModel_location, 1, GL_FALSE,
+                               glm::value_ptr(matModel) );
+
+
+            // Do I override the vertex colour
+            GLint colourOverride_UL = glGetUniformLocation(program, "colourOverride");
+            GLint bUseOverrideColour_UL = glGetUniformLocation(program, "bUseOverrideColour");
+
+            if ( pCurrentMesh->bOverrideVertexModelColour )
+            {
+                glUniform3f(colourOverride_UL,              // uniform vec3 colourOverride;	
+                            pCurrentMesh->colourRGB.r,
+                            pCurrentMesh->colourRGB.g,
+                            pCurrentMesh->colourRGB.b);
+
+                // All types are really floats, so a bool is really a single float
+                glUniform1f(bUseOverrideColour_UL, (GLfloat)GL_TRUE);       // or 1.0
+            }
+            else
+            {
+                // All types are really floats, so a bool is really a single float
+                glUniform1f(bUseOverrideColour_UL, (GLfloat)GL_FALSE);       // or 0
+            }
+
 
 
             sModelDrawInfo modelInfo;
