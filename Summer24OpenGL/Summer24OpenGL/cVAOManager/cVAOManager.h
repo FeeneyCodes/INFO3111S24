@@ -55,6 +55,12 @@ public:
 						  sModelDrawInfo &drawInfo, 
 						  unsigned int shaderProgramID);
 
+	bool LoadModelIntoVAO(std::string fileName,
+						  sModelDrawInfo& drawInfo,
+						  unsigned int shaderProgramID,
+						  bool bModelHasColours,
+						  bool bModelHasNormals);
+
 	bool LoadModelIntoVAO_XYZ_ONLY(std::string fileName, 
 						  sModelDrawInfo &drawInfo, 
 						  unsigned int shaderProgramID);

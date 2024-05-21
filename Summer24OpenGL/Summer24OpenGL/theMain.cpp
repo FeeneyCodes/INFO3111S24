@@ -30,6 +30,8 @@
 glm::vec3 g_cameraEye = glm::vec3(0.0, 0.0, -20.0f);
 glm::vec3 g_cameraTarget = glm::vec3(0.0, 0.0, 0.0f);
 
+extern unsigned int g_selectedObjectIndex;
+
 // note that this is a pointer because 
 std::vector< cMeshObject* > g_MeshesToDraw;
 
@@ -542,78 +544,8 @@ static void error_callback(int error, const char* description)
 }
 
 //     void function_name(GLFWwindow* window, int key, int scancode, int action, int mods)
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    }
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-    const float CAMERA_SPEED = 0.1f;
-
-    if ( mods == GLFW_MOD_SHIFT )       // 0001   // 0010  // 0100  // 0111
-    {
-        // ONLY the shift key (either one) is down
-        
-
-    }//if ( mods == GLFW_MOD_SHIFT )
-
-    // If one of the keys is shift
-    //  Shift -- 0001
-    //  Cont  -- 0010
-    //  Alt   -- 0100
-    // Press all 3 --> 0111
-    //     & 0001  --- 0001 // "bitwise and is a 'mask' operation
-    //             --------
-    //                 0001
-
-    if ( ( mods & GLFW_MOD_SHIFT ) == GLFW_MOD_SHIFT )
-    {
-        // Then shift (and maybe something else) is down
-
-    }
-
-    // Move the camera 
-    if (key == GLFW_KEY_A )
-    {
-        // Go left
-        ::g_cameraEye.x -= CAMERA_SPEED;
-//        ::g_cameraTarget.x -= CAMERA_SPEED;
-    }
-    if (key == GLFW_KEY_D )
-    {
-        // Go right
-        ::g_cameraEye.x += CAMERA_SPEED;
-//        ::g_cameraTarget.x += CAMERA_SPEED;
-    }
-
-    if (key == GLFW_KEY_W )
-    {
-        // Go forward
-        ::g_cameraEye.z -= CAMERA_SPEED;
-//        ::g_cameraTarget.x -= CAMERA_SPEED;
-    }
-    if (key == GLFW_KEY_S )
-    {
-        // Go back
-        ::g_cameraEye.z += CAMERA_SPEED;
-//        ::g_cameraTarget.x += CAMERA_SPEED;
-    }
-
-    if (key == GLFW_KEY_Q )
-    {
-        // Go down
-        ::g_cameraEye.y -= CAMERA_SPEED;
-//        ::g_cameraTarget.x -= CAMERA_SPEED;
-    }
-    if (key == GLFW_KEY_E )
-    {
-        // Go up
-        ::g_cameraEye.y += CAMERA_SPEED;
-//        ::g_cameraTarget.x += CAMERA_SPEED;
-    }
-    return;
-}
 
 int main(void)
 {
@@ -796,6 +728,22 @@ int main(void)
         std::cout << "ERROR: Didn't load the cow" << std::endl;
     }
 
+    sModelDrawInfo dolphinMesh;
+    if ( ::g_pMeshManager->LoadModelIntoVAO( "assets/models/dolphin_xyz_RGBA.ply", dolphinMesh, program ) )
+    {
+        std::cout << "loaded: "
+            << dolphinMesh.meshName << " "
+            << dolphinMesh.numberOfVertices << " vertices" << std::endl;
+    }
+
+    sModelDrawInfo terrainMesh;
+    if ( ::g_pMeshManager->LoadModelIntoVAO( "assets/models/fractalTerrainMeshLab.ply", terrainMesh, program ) )
+    {
+        std::cout << "loaded: "
+            << terrainMesh.meshName << " "
+            << terrainMesh.numberOfVertices << " vertices" << std::endl;
+    }
+
 
     // Load the models I'd like to draw in the scene
     cMeshObject* pCow = new cMeshObject();
@@ -819,7 +767,20 @@ int main(void)
     pCar->orientation.x = glm::radians(-90.0f);
     pCar->position.z = 25.0f;
     pCar->bIsWireFrame = true;
+    pCar->bIsVisible = false;
     ::g_MeshesToDraw.push_back(pCar);
+
+    cMeshObject* pDolphin = new cMeshObject();
+    pDolphin->meshFileName = "assets/models/dolphin_xyz_RGBA.ply";
+    pDolphin->scale = 0.01f;
+    ::g_MeshesToDraw.push_back(pDolphin);
+
+    cMeshObject* pTerrain = new cMeshObject();
+    pTerrain->meshFileName = "assets/models/fractalTerrainMeshLab.ply";
+    pTerrain->position.y = -15.0f;
+    pTerrain->bIsWireFrame = true;
+    ::g_MeshesToDraw.push_back(pTerrain);
+
 
     // Choose the shader program we're using
     glUseProgram(program);
@@ -855,8 +816,8 @@ int main(void)
 
         glm::mat4 matView = glm::mat4(1.0f);
 
-//        glm::vec3 cameraEye = glm::vec3(0.0, 0.0, -20.0f);
-//        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+//        glm::vec3 cameraEye = glm::vec3(   0.0,   0.0, -20.0f);
+//        glm::vec3 cameraTarget = glm::vec3(0.0f, -5.0f, 20.0f);
         glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
 
         matView = glm::lookAt(::g_cameraEye,
@@ -889,6 +850,7 @@ int main(void)
             glm::mat4 matTranslation = glm::translate(glm::mat4(1.0f),
                                                       pCurrentMesh->position);
 
+            // Euler axes
             glm::mat4 matRotateX = glm::rotate(glm::mat4(1.0f),
                                                pCurrentMesh->orientation.x,
                                                glm::vec3(1.0f, 0.0f, 0.0f));
@@ -906,6 +868,8 @@ int main(void)
                                                          pCurrentMesh->scale,
                                                          pCurrentMesh->scale));
 
+            // The order of these is important
+            // 1 * 4 * 12 * 3 = 12 * 4 * 12 * 3
             matModel = matModel * matTranslation;
 
             matModel = matModel * matRotateX;
@@ -1028,7 +992,10 @@ int main(void)
             << "Camera (xyz)"
             << ::g_cameraEye.x << ", "
             << ::g_cameraEye.y << ", "
-            << ::g_cameraEye.z;
+            << ::g_cameraEye.z 
+            << "  " 
+            << "selected object ID: " 
+            << ::g_selectedObjectIndex;
 
 //        glfwSetWindowTitle(window, "HEY!");
         glfwSetWindowTitle(window, ssWindowsTitle.str().c_str() );

@@ -19,6 +19,9 @@
     <Filter Include="MeshManager">
       <UniqueIdentifier>{32a72b7d-eb60-4245-905e-8820cbd757ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ShaderManager\Shaders">
+      <UniqueIdentifier>{7ce7daea-c4c1-4569-9b4b-10f304b6ea32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="theMain.cpp">
@@ -39,6 +42,9 @@
     <ClCompile Include="cMeshObject.cpp">
       <Filter>MeshManager</Filter>
     </ClCompile>
+    <ClCompile Include="glfw_keyboard_callback_function.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cShaderManager\cShaderManager.h">
@@ -53,5 +59,13 @@
     <ClInclude Include="cMeshObject.h">
       <Filter>MeshManager</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\fragShader01.glsl">
+      <Filter>ShaderManager\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\vertexShader01.glsl">
+      <Filter>ShaderManager\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

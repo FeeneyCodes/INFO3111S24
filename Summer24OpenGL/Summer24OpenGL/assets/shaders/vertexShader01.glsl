@@ -22,6 +22,9 @@ void main()
 
 	gl_Position = MVP * vec4(vPosition, 1.0);
 	
+	// Like multiplying by 1.0
+//	gl_Position = sm * vec4( vPosition, 1.0f);
+	
 	// Vertex colour going to the fragment shader
 	if ( bUseOverrideColour )
 	{
