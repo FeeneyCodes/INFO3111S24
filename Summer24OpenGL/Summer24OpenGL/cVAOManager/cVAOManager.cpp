@@ -238,6 +238,8 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 	struct sVertPly
 	{
 		glm::vec3 pos;
+		// Vertex normals
+		glm::vec3 normal;
 		glm::vec4 colour;
 	};
 
@@ -257,12 +259,40 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 	for ( unsigned int index = 0; index != drawInfo.numberOfVertices; // ::g_NumberOfVertices; 
 		  index++ )
 	{
+
+//                                           _          
+//   __  __     _   _       __ _  _ __    __| |  ____ _ 
+//   \ \/ /    | | | |     / _` || '_ \  / _` | |_  /(_)
+//    >  <  _  | |_| | _  | (_| || | | || (_| |  / /  _ 
+//   /_/\_\( )  \__, |( )  \__,_||_| |_| \__,_| /___|(_)
+//         |/   |___/ |/                                
+
 		thePlyFile >> tempVert.pos.x >> tempVert.pos.y >> tempVert.pos.z;
 
+
+//   __     __        _              _   _                            _       
+//   \ \   / /__ _ __| |_ _____  __ | \ | | ___  _ __ _ __ ___   __ _| |___ _ 
+//    \ \ / / _ \ '__| __/ _ \ \/ / |  \| |/ _ \| '__| '_ ` _ \ / _` | / __(_)
+//     \ V /  __/ |  | ||  __/>  <  | |\  | (_) | |  | | | | | | (_| | \__ \_ 
+//      \_/ \___|_|   \__\___/_/\_\ |_| \_|\___/|_|  |_| |_| |_|\__,_|_|___(_)
+//                                                                            
+//	property float nx
+//	property float ny
+//	property float nz
+		thePlyFile >> tempVert.normal.x >> tempVert.normal.y >> tempVert.normal.z;
+
+//     ____        _                             
+//    / ___| ___  | |  ___   _   _  _ __  ___  _ 
+//   | |    / _ \ | | / _ \ | | | || '__|/ __|(_)
+//   | |___| (_) || || (_) || |_| || |   \__ \ _ 
+//    \____|\___/ |_| \___/  \__,_||_|   |___/(_)
+//                                               
 		thePlyFile >> tempVert.colour.x >> tempVert.colour.y
 			       >> tempVert.colour.z >> tempVert.colour.w; 
 
 		// Scale the colour from 0 to 1, instead of 0 to 255
+		// (the colours in the ply are "uchar" (unsigned char, aka unsinged byte) not float.
+		// They range form 0 to 255 (like HTML colours), whereas we want them to be 0.0f to 1.0f
 		tempVert.colour.x /= 255.0f;
 		tempVert.colour.y /= 255.0f;
 		tempVert.colour.z /= 255.0f;

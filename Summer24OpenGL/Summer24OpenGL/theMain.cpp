@@ -711,13 +711,13 @@ int main(void)
     ::g_pMeshManager = new cVAOManager();
 
     sModelDrawInfo meshInfoCow;
-    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/cow_xyz_rgba.ply", meshInfoCow, program ) )
+    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/cow_xyz_n_rgba.ply", meshInfoCow, program ) )
     {
         std::cout << "ERROR: Didn't load the cow" << std::endl;
     }
 
     sModelDrawInfo carMeshInfo;
-    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/de--lorean_xyz_rgba.ply", carMeshInfo, program ) )
+    if ( ! ::g_pMeshManager->LoadModelIntoVAO( "assets/models/de--lorean_xyz_n_rgba.ply", carMeshInfo, program ) )
     {
         std::cout << "ERROR: Didn't load the cow" << std::endl;
     }
@@ -729,7 +729,7 @@ int main(void)
     }
 
     sModelDrawInfo dolphinMesh;
-    if ( ::g_pMeshManager->LoadModelIntoVAO( "assets/models/dolphin_xyz_RGBA.ply", dolphinMesh, program ) )
+    if ( ::g_pMeshManager->LoadModelIntoVAO( "assets/models/dolphin_xyz_n_rgba.ply", dolphinMesh, program ) )
     {
         std::cout << "loaded: "
             << dolphinMesh.meshName << " "
@@ -737,7 +737,7 @@ int main(void)
     }
 
     sModelDrawInfo terrainMesh;
-    if ( ::g_pMeshManager->LoadModelIntoVAO( "assets/models/fractalTerrainMeshLab.ply", terrainMesh, program ) )
+    if ( ::g_pMeshManager->LoadModelIntoVAO( "assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply", terrainMesh, program ) )
     {
         std::cout << "loaded: "
             << terrainMesh.meshName << " "
@@ -745,16 +745,25 @@ int main(void)
     }
 
 
+    sModelDrawInfo wearhouseMesh;
+    if ( ::g_pMeshManager->LoadModelIntoVAO( "assets/models/Warehouse_xyz_n_rgba.ply", wearhouseMesh, program ) )
+    {
+        std::cout << "loaded: "
+            << wearhouseMesh.meshName << " "
+            << wearhouseMesh.numberOfVertices << " vertices" << std::endl;
+    }
+
+
     // Load the models I'd like to draw in the scene
     cMeshObject* pCow = new cMeshObject();
-    pCow->meshFileName = "assets/models/cow_xyz_rgba.ply";
+    pCow->meshFileName = "assets/models/cow_xyz_n_rgba.ply";
     pCow->bIsWireFrame = false;
     pCow->position.x = -10.f;
     ::g_MeshesToDraw.push_back(pCow);
 
     cMeshObject* pCow2 = new cMeshObject();
-    pCow2->meshFileName = "assets/models/cow_xyz_rgba.ply";
-    pCow2->bIsWireFrame = false;
+    pCow2->meshFileName = "assets/models/cow_xyz_n_rgba.ply";
+//    pCow2->bIsWireFrame = false;
     pCow2->position.x = +10.0f;
     pCow2->scale = 0.5f;
     pCow->orientation.z = glm::radians(-45.0f);
@@ -763,23 +772,30 @@ int main(void)
     ::g_MeshesToDraw.push_back(pCow2);
 
     cMeshObject* pCar = new cMeshObject();
-    pCar->meshFileName = "assets/models/de--lorean_xyz_rgba.ply";
+    pCar->meshFileName = "assets/models/de--lorean_xyz_n_rgba.ply";
     pCar->orientation.x = glm::radians(-90.0f);
     pCar->position.z = 25.0f;
-    pCar->bIsWireFrame = true;
+//    pCar->bIsWireFrame = true;
     pCar->bIsVisible = false;
     ::g_MeshesToDraw.push_back(pCar);
 
     cMeshObject* pDolphin = new cMeshObject();
-    pDolphin->meshFileName = "assets/models/dolphin_xyz_RGBA.ply";
+    pDolphin->meshFileName = "assets/models/dolphin_xyz_n_rgba.ply";
     pDolphin->scale = 0.01f;
     ::g_MeshesToDraw.push_back(pDolphin);
 
     cMeshObject* pTerrain = new cMeshObject();
-    pTerrain->meshFileName = "assets/models/fractalTerrainMeshLab.ply";
-    pTerrain->position.y = -15.0f;
-    pTerrain->bIsWireFrame = true;
+    pTerrain->meshFileName = "assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply";
+    pTerrain->position.y = -30.0f;
+//    pTerrain->bIsWireFrame = true;
     ::g_MeshesToDraw.push_back(pTerrain);
+
+    cMeshObject* pWarehouse = new cMeshObject();
+    pWarehouse->meshFileName = "assets/models/Warehouse_xyz_n_rgba.ply";
+//    pWarehouse->bIsWireFrame = true;
+    pWarehouse->position.y = -10.0f;
+    pWarehouse->orientation.y = glm::radians(-90.0f);
+    ::g_MeshesToDraw.push_back(pWarehouse);
 
 
     // Choose the shader program we're using
@@ -807,12 +823,13 @@ int main(void)
 
 
         //mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        glm::mat4 matProjection = glm::perspective(0.6f,
-                             ratio,
-                             0.1f,
-                             1000.0f);
+        glm::mat4 matProjection = 
+            glm::perspective(0.6f,          // FOV
+                             ratio,         // screen aspect ratio 16:9
+                             1.0f,          // Neap plane
+                             10'000.0f);      // Far plane
 
-
+        // float 6-7
 
         glm::mat4 matView = glm::mat4(1.0f);
 

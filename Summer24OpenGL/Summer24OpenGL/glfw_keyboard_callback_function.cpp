@@ -87,23 +87,61 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if ((mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT)
     {
         // Then shift (and maybe something else) is down
-    // Move the camera 
+        
         if (key == GLFW_KEY_A)  
         {  
             ::g_MeshesToDraw[ ::g_selectedObjectIndex ]->position.x -= OBJECT_MOVE_SPEED;
         }
-
         if (key == GLFW_KEY_D)  {
             ::g_MeshesToDraw[::g_selectedObjectIndex]->position.x += OBJECT_MOVE_SPEED;
         }
 
+        if (key == GLFW_KEY_Q)  
+        {  
+            ::g_MeshesToDraw[ ::g_selectedObjectIndex ]->position.y -= OBJECT_MOVE_SPEED;
+        }
+        if (key == GLFW_KEY_E)  {
+            ::g_MeshesToDraw[::g_selectedObjectIndex]->position.y += OBJECT_MOVE_SPEED;
+        }
+
+        if (key == GLFW_KEY_W)  
+        {  
+            ::g_MeshesToDraw[ ::g_selectedObjectIndex ]->position.z += OBJECT_MOVE_SPEED;
+        }
+        if (key == GLFW_KEY_S)  {
+            ::g_MeshesToDraw[::g_selectedObjectIndex]->position.z -= OBJECT_MOVE_SPEED;
+        }
+
         if (key == GLFW_KEY_O )
         {
+            // TODO: ERROR here if out of range
             ::g_selectedObjectIndex--;
         }
         if (key == GLFW_KEY_P )
         {
             ::g_selectedObjectIndex++;
+        }
+
+        if ( key == GLFW_KEY_ENTER )
+        {
+            // theFile << ::g_MeshesToDraw.size() << " "
+            // 
+            // Save the "scene"
+            for ( cMeshObject* pCM : ::g_MeshesToDraw )
+            {
+                // Baft the object properties to a file
+                // theFile << pCM->meshName << " "
+                // theFile << pCM->position.x
+                // theFile << pCM->position.y
+                // .. and so on
+            }
+
+        }
+        if ( key == GLFW_KEY_L )
+        {
+            // Load the scene
+            // Clear the current g_MeshesToDraw
+            // Loop through and load the properties from the file
         }
 
     //    if (key == GLFW_KEY_W){

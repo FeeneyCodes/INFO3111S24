@@ -55,12 +55,14 @@ public:
 						  sModelDrawInfo &drawInfo, 
 						  unsigned int shaderProgramID);
 
+	// Here's an option to load various models using boolean flags:
 	bool LoadModelIntoVAO(std::string fileName,
 						  sModelDrawInfo& drawInfo,
 						  unsigned int shaderProgramID,
 						  bool bModelHasColours,
 						  bool bModelHasNormals);
 
+	// ...or you could have specific functions to load the files:
 	bool LoadModelIntoVAO_XYZ_ONLY(std::string fileName, 
 						  sModelDrawInfo &drawInfo, 
 						  unsigned int shaderProgramID);

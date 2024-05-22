@@ -8,7 +8,7 @@ cMeshObject::cMeshObject()
 	this->colourRGB = glm::vec3( 1.0f, 1.0f, 1.0f );
 	this->bOverrideVertexModelColour = false;
 
-	this->bIsWireFrame = true;
+	this->bIsWireFrame = false;	// true;
 	this->bIsVisible = true;
 
 };
