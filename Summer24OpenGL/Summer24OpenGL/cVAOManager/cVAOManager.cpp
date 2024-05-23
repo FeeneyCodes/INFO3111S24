@@ -157,7 +157,7 @@ bool cVAOManager::LoadModelIntoVAO(
 
 	// Also the normals...
 	glEnableVertexAttribArray(vnorm_location);	// vNormal
-	glVertexAttribPointer( vcol_location, 4,	// vNormal
+	glVertexAttribPointer(vnorm_location, 4,	// vNormal
 						   GL_FLOAT, GL_FALSE,
 						   sizeof(sVert_xyzw_n_RGBA),		
 						   (void*)offsetof(sVert_xyzw_n_RGBA, nx));		
@@ -171,6 +171,7 @@ bool cVAOManager::LoadModelIntoVAO(
 
 	glDisableVertexAttribArray(vpos_location);
 	glDisableVertexAttribArray(vcol_location);
+	glDisableVertexAttribArray(vnorm_location);
 
 
 	// Store the draw information into the map

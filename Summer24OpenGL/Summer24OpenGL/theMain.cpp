@@ -777,6 +777,16 @@ int main(void)
             glUniformMatrix4fv(mModel_location, 1, GL_FALSE,
                                glm::value_ptr(matModel) );
 
+            // We need this for lighting
+            // uniform mat4 mModel_InverseTranspose;
+            GLint mModelIT_location = glGetUniformLocation(program, "mModel_InverseTranspose");
+
+            // Calculate the "inverse transpose of the model matrix"
+            glm::mat4 matModelIT = glm::inverse(glm::transpose(matModel));
+
+            glUniformMatrix4fv(mModelIT_location, 1, GL_FALSE,
+                               glm::value_ptr(matModelIT) );
+
 
             // Do I override the vertex colour
             GLint colourOverride_UL = glGetUniformLocation(program, "colourOverride");

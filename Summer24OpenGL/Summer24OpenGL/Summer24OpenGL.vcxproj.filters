@@ -22,6 +22,9 @@
     <Filter Include="ShaderManager\Shaders">
       <UniqueIdentifier>{7ce7daea-c4c1-4569-9b4b-10f304b6ea32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lights">
+      <UniqueIdentifier>{b04d4be3-2a95-417e-9e17-5ebea92672a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="theMain.cpp">
@@ -45,6 +48,12 @@
     <ClCompile Include="glfw_keyboard_callback_function.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cLightHelper\cLightHelper.cpp">
+      <Filter>Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="cLightManager.cpp">
+      <Filter>Lights</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cShaderManager\cShaderManager.h">
@@ -58,6 +67,12 @@
     </ClInclude>
     <ClInclude Include="cMeshObject.h">
       <Filter>MeshManager</Filter>
+    </ClInclude>
+    <ClInclude Include="cLightHelper\cLightHelper.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="cLightManager.h">
+      <Filter>Lights</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

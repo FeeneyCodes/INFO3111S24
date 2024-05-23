@@ -124,7 +124,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             {
                 // Yes, so if we -- it, we're screwed.
                 // Set it the LAST index in the vector
-                ::g_selectedObjectIndex = (::g_MeshesToDraw.size() - 1);
+                ::g_selectedObjectIndex = (unsigned int)(::g_MeshesToDraw.size() - 1);
             }
             else
             {
