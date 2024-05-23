@@ -3,6 +3,10 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include "cMeshObject.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
 
 extern glm::vec3 g_cameraEye;//  = glm::vec3(0.0, 0.0, -20.0f);
 
@@ -84,6 +88,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
     const float OBJECT_MOVE_SPEED = 0.5f;
 
+    // ONLY the shift key is down
     if ((mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT)
     {
         // Then shift (and maybe something else) is down
@@ -112,60 +117,129 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             ::g_MeshesToDraw[::g_selectedObjectIndex]->position.z -= OBJECT_MOVE_SPEED;
         }
 
-        if (key == GLFW_KEY_O )
+        if ( (key == GLFW_KEY_O) && (action == GLFW_PRESS) )
         {
             // TODO: ERROR here if out of range
-            ::g_selectedObjectIndex--;
+            if (::g_selectedObjectIndex == 0)
+            {
+                // Yes, so if we -- it, we're screwed.
+                // Set it the LAST index in the vector
+                ::g_selectedObjectIndex = (::g_MeshesToDraw.size() - 1);
+            }
+            else
+            {
+                // We can --
+                ::g_selectedObjectIndex--;  
+            }
         }
-        if (key == GLFW_KEY_P )
+        if ( (key == GLFW_KEY_P) && (action == GLFW_PRESS) )  // orGLFW_RELEASE
         {
             ::g_selectedObjectIndex++;
+
+            // To high? 
+            if (::g_selectedObjectIndex >= ::g_MeshesToDraw.size() )
+            {
+                // Yeah, so clamp it? Wrap around?
+                ::g_selectedObjectIndex = 0;
+            }
+
+            std::cout << "Selected object now: " << ::g_selectedObjectIndex << std::endl;;
         }
 
-        if ( key == GLFW_KEY_ENTER )
+        if ( key == GLFW_KEY_ENTER && action == GLFW_PRESS)
         {
+            std::ofstream mySaveFileVariable("michaels_scene.scene");
+
+            mySaveFileVariable << ::g_MeshesToDraw.size() << std::endl;
+
+            //std::fstream 
+
             // theFile << ::g_MeshesToDraw.size() << " "
             // 
             // Save the "scene"
-            for ( cMeshObject* pCM : ::g_MeshesToDraw )
+//            for ( cMeshObject* pCM : ::g_MeshesToDraw )
+//            for ( std::vector< cMeshObject* >::iterator itCurMesh = ::g_MeshesToDraw.begin();
+//                  itCurMesh != ::g_MeshesToDraw.end(); itCurMesh++ )
+            for ( int index = 0; index != ::g_MeshesToDraw.size(); index++ )
             {
-                // Baft the object properties to a file
+                std::cout << ::g_MeshesToDraw[index]->meshFileName << std::endl;
+                std::cout << ::g_MeshesToDraw[index]->position.x << std::endl;
+                std::cout << ::g_MeshesToDraw[index]->position.y << std::endl;
+                std::cout << ::g_MeshesToDraw[index]->position.z << std::endl;
+
+
+                // 8, 7, -12, 23, 33, 
+
+                mySaveFileVariable << ::g_MeshesToDraw[index]->meshFileName << std::endl;
+                mySaveFileVariable << ::g_MeshesToDraw[index]->position.x << std::endl;
+                mySaveFileVariable << ::g_MeshesToDraw[index]->position.y << std::endl;
+                mySaveFileVariable << ::g_MeshesToDraw[index]->position.z << std::endl;
+
+
+//                cMeshObject a;                          // STACK
+//                cMeshObject* pB = new cMeshObject();    // HEAP
+//                a.meshFileName = "";
+//                pB->meshFileName = "";
+
+                // Barf the object properties to a file
                 // theFile << pCM->meshName << " "
                 // theFile << pCM->position.x
                 // theFile << pCM->position.y
                 // .. and so on
+            }// Jump
+
+            mySaveFileVariable.close();
+
+            int index = 0;
+            do 
+            {
+
+            } while (index < ::g_MeshesToDraw.size());
+
+        }
+        if ( key == GLFW_KEY_L && action == GLFW_PRESS)
+        {
+            std::ifstream mySaveFileVariable("michaels_scene.scene");
+            // Did it open?
+            if ( ! mySaveFileVariable.is_open() )
+            {
+                std::cout << "Didn't open scene file!" << std::endl;
+                return;
             }
 
-        }
-        if ( key == GLFW_KEY_L )
-        {
-            // Load the scene
-            // Clear the current g_MeshesToDraw
-            // Loop through and load the properties from the file
+            // Rememmber this?
+            //cMeshObject* pCow = new cMeshObject();
+            //pCow->meshFileName = "assets/models/cow_xyz_n_rgba.ply";
+            //pCow->bIsWireFrame = false;
+            //pCow->position.x = -10.f;
+            //::g_MeshesToDraw.push_back(pCow);
+
+//            ::g_MeshesToDraw.clear();
+
+            int numberOfMeshsesInScene = 0;
+            //std::cin >> numberOfMeshsesInScene;
+            mySaveFileVariable >> numberOfMeshsesInScene;
+
+            for (int index = 0; index != numberOfMeshsesInScene; index++)
+            {
+                cMeshObject* pNewObject = new cMeshObject();
+//                std::cin >> pNewObject->meshFileName;
+//                std::cin >> pNewObject->position.x;
+//                std::cin >> pNewObject->position.y;
+//                std::cin >> pNewObject->position.z;
+
+                mySaveFileVariable >> pNewObject->meshFileName;
+                mySaveFileVariable >> pNewObject->position.x;
+                mySaveFileVariable >> pNewObject->position.y;
+                mySaveFileVariable >> pNewObject->position.z;
+
+                ::g_MeshesToDraw.push_back(pNewObject);
+            }
+
+            mySaveFileVariable.close();
         }
 
-    //    if (key == GLFW_KEY_W){
-    //        ::g_cameraEye.z -= CAMERA_SPEED;
-    //    }
-    //    if (key == GLFW_KEY_S)
-    //    {
-    //        // Go back
-    //        ::g_cameraEye.z += CAMERA_SPEED;
-    ////        ::g_cameraTarget.x += CAMERA_SPEED;
-    //    }
-
-    //    if (key == GLFW_KEY_Q)
-    //    {
-    //        // Go down
-    //        ::g_cameraEye.y -= CAMERA_SPEED;
-    ////        ::g_cameraTarget.x -= CAMERA_SPEED;
-    //    }
-    //    if (key == GLFW_KEY_E)
-    //    {
-    //        // Go up
-    //        ::g_cameraEye.y += CAMERA_SPEED;
-    ////        ::g_cameraTarget.x += CAMERA_SPEED;
-    //    }
+ 
 
 
     }//if ((mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT)

@@ -109,7 +109,7 @@ bool cVAOManager::LoadModelIntoVAO(
 	glBindBuffer(GL_ARRAY_BUFFER, drawInfo.VertexBufferID);
 	// sVert vertices[3]
 	glBufferData( GL_ARRAY_BUFFER, 
-				  sizeof(sVert) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
+				  sizeof(sVert_xyzw_RGBA) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
 				  (GLvoid*) drawInfo.pVertices,							// pVertices,			//vertices, 
 				  GL_STATIC_DRAW );
 
@@ -131,17 +131,17 @@ bool cVAOManager::LoadModelIntoVAO(
 	GLint vcol_location = glGetAttribLocation(shaderProgramID, "vColour");	// program;
 
 	// Set the vertex attributes for this shader
-	glEnableVertexAttribArray(vpos_location);	// vPos
-	glVertexAttribPointer( vpos_location, 3,		// vPos
-						   GL_FLOAT, GL_FALSE,
-						   sizeof(float) * 6, 
-						   ( void* )0);
+	glEnableVertexAttribArray(vpos_location);	// vPosition
+	glVertexAttribPointer(vpos_location, 4,	// vPosition
+						  GL_FLOAT, GL_FALSE,
+						  sizeof(sVert_xyzw_RGBA),			// sizeof(float) * 32,		// Stride
+						  (void*)offsetof(sVert_xyzw_RGBA, x));   //(void*)0);				// Offset
 
-	glEnableVertexAttribArray(vcol_location);	// vCol
-	glVertexAttribPointer( vcol_location, 3,		// vCol
+	glEnableVertexAttribArray(vcol_location);	// vColour
+	glVertexAttribPointer( vcol_location, 4,	// vColour
 						   GL_FLOAT, GL_FALSE,
-						   sizeof(float) * 6, 
-						   ( void* )( sizeof(float) * 3 ));
+						   sizeof(sVert_xyzw_RGBA),		// sizeof(float) * 6,
+						   (void*)offsetof(sVert_xyzw_RGBA, r));		// ( void* )( sizeof(float) * 4 ));
 
 	// Now that all the parts are set up, set the VAO to zero
 	glBindVertexArray(0);
@@ -306,7 +306,8 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 	// - sVertPly was made to match the file format
 	// - sVert was made to match the shader vertex attrib format
 
-	drawInfo.pVertices = new sVert[drawInfo.numberOfVertices];
+//	drawInfo.pVertices = new sVert[drawInfo.numberOfVertices];
+	drawInfo.pVertices = new sVert_xyzw_RGBA[drawInfo.numberOfVertices];
 
 	// Optional clear array to zero 
 	//memset( drawInfo.pVertices, 0, sizeof(sVert) * drawInfo.numberOfVertices);
@@ -316,10 +317,13 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 		drawInfo.pVertices[index].x = vecTempPlyVerts[index].pos.x;
 		drawInfo.pVertices[index].y = vecTempPlyVerts[index].pos.y;
 		drawInfo.pVertices[index].z = vecTempPlyVerts[index].pos.z;
+		//
+		drawInfo.pVertices[index].w = 1.0f;	// If in doubt, set 4th value to 1
 
 		drawInfo.pVertices[index].r = vecTempPlyVerts[index].colour.r;
 		drawInfo.pVertices[index].g = vecTempPlyVerts[index].colour.g;
 		drawInfo.pVertices[index].b = vecTempPlyVerts[index].colour.b;
+		drawInfo.pVertices[index].a = vecTempPlyVerts[index].colour.a;
 	}// for ( unsigned int index...
 
 

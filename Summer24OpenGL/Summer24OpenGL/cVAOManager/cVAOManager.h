@@ -11,10 +11,16 @@
 // This is also called the 'vertex layout'. 
 // This means that if the shader vertex layout changed, this
 //  vertex structure will also need to change (usually). 
-struct sVert
+//struct sVert_OG
+//{
+//	float x, y, z;		// added "z"
+//	float r, g, b;
+//};
+
+struct sVert_xyzw_RGBA
 {
-	float x, y, z;		// added "z"
-	float r, g, b;
+	float x, y, z, w;		// added "z"
+	float r, g, b, a;
 };
 
 
@@ -41,7 +47,7 @@ struct sModelDrawInfo
 	unsigned int numberOfTriangles;
 
 	// The "local" (i.e. "CPU side" temporary array)
-	sVert* pVertices;	//  = 0;
+	sVert_xyzw_RGBA* pVertices;	//  = 0;
 	// The index buffer (CPU side)
 	unsigned int* pIndices;
 };

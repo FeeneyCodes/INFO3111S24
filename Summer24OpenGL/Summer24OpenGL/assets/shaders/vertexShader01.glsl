@@ -4,11 +4,12 @@
 uniform mat4 mProj;
 uniform mat4 mView;
 uniform mat4 mModel;
-	
-in vec3 vColour;			// attribute
-in vec3 vPosition;			// attribute
 
-out vec3 color;
+// All registers in the GPU are vec4 
+in vec4 vColour;			// RGB, A (alpha = transparency)
+in vec4 vPosition;			// XYZ (ignore the 4th value, which is W)
+
+out vec4 color;
 
 uniform vec3 colourOverride;			// 1, 0, 0 
 uniform bool bUseOverrideColour;
@@ -20,7 +21,7 @@ void main()
 
 	mat4 MVP = mProj * mView * mModel;
 
-	gl_Position = MVP * vec4(vPosition, 1.0);
+	gl_Position = MVP * vec4(vPosition.xyz, 1.0f);
 	
 	// Like multiplying by 1.0
 //	gl_Position = sm * vec4( vPosition, 1.0f);
@@ -28,7 +29,7 @@ void main()
 	// Vertex colour going to the fragment shader
 	if ( bUseOverrideColour )
 	{
-		color = colourOverride;
+		color = vec4(colourOverride.rgb, 1.0f);
 	}
 	else
 	{
