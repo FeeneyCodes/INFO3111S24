@@ -16,10 +16,30 @@
 //	float x, y, z;		// added "z"
 //	float r, g, b;
 //};
+//
+//struct sVert_xyzw_RGBA
+//{
+//	float x, y, z, w;		// added "z"
+//	float r, g, b, a;
+//};
 
-struct sVert_xyzw_RGBA
+// Adding the normals because file now has normals:
+//ply
+//element vertex 2903
+//property float x
+//property float y
+//property float z
+//property float nx			<--
+//property float ny
+//property float nz
+//property uchar red
+//property uchar green
+//property uchar blue
+//property uchar alpha
+struct sVert_xyzw_n_RGBA
 {
-	float x, y, z, w;		// added "z"
+	float x, y, z, w;		//  position (ignoring the w)
+	float nx, ny, nz, nw;	//	normal (ignoring the w)
 	float r, g, b, a;
 };
 
@@ -47,7 +67,8 @@ struct sModelDrawInfo
 	unsigned int numberOfTriangles;
 
 	// The "local" (i.e. "CPU side" temporary array)
-	sVert_xyzw_RGBA* pVertices;	//  = 0;
+//	sVert_xyzw_RGBA* pVertices;	//  = 0;
+	sVert_xyzw_n_RGBA* pVertices;	//  = 0;
 	// The index buffer (CPU side)
 	unsigned int* pIndices;
 };

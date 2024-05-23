@@ -30,11 +30,11 @@ sModelDrawInfo::sModelDrawInfo()
 
 	// You could store the max and min values of the 
 	//  vertices here (determined when you load them):
-	glm::vec3 maxValues;
-	glm::vec3 minValues;
+	glm::vec3 maxValues = glm::vec3(0.0f);
+	glm::vec3 minValues = glm::vec3(0.0f);
 
 //	scale = 5.0/maxExtent;		-> 5x5x5
-	float maxExtent;
+	float maxExtent = 0.0f;
 
 	return;
 }
@@ -109,7 +109,9 @@ bool cVAOManager::LoadModelIntoVAO(
 	glBindBuffer(GL_ARRAY_BUFFER, drawInfo.VertexBufferID);
 	// sVert vertices[3]
 	glBufferData( GL_ARRAY_BUFFER, 
-				  sizeof(sVert_xyzw_RGBA) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
+//				  sizeof(sVert) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
+//				  sizeof(sVert_xyzw_RGBA) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
+				  sizeof(sVert_xyzw_n_RGBA) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
 				  (GLvoid*) drawInfo.pVertices,							// pVertices,			//vertices, 
 				  GL_STATIC_DRAW );
 
@@ -128,20 +130,38 @@ bool cVAOManager::LoadModelIntoVAO(
 	// Set the vertex attributes.
 
 	GLint vpos_location = glGetAttribLocation(shaderProgramID, "vPosition");	// program
-	GLint vcol_location = glGetAttribLocation(shaderProgramID, "vColour");	// program;
+	GLint vcol_location = glGetAttribLocation(shaderProgramID, "vColour");		// program;
+	// Normals, too
+	GLint vnorm_location = glGetAttribLocation(shaderProgramID, "vNormal");
 
 	// Set the vertex attributes for this shader
 	glEnableVertexAttribArray(vpos_location);	// vPosition
+	//glVertexAttribPointer(vpos_location, 4,	// vPosition
+	//					  GL_FLOAT, GL_FALSE,
+	//					  sizeof(sVert_xyzw_RGBA),			// sizeof(float) * 32,		// Stride
+	//					  (void*)offsetof(sVert_xyzw_RGBA, x));   //(void*)0);				// Offset
 	glVertexAttribPointer(vpos_location, 4,	// vPosition
 						  GL_FLOAT, GL_FALSE,
-						  sizeof(sVert_xyzw_RGBA),			// sizeof(float) * 32,		// Stride
-						  (void*)offsetof(sVert_xyzw_RGBA, x));   //(void*)0);				// Offset
+						  sizeof(sVert_xyzw_n_RGBA),			// sizeof(float) * 32,		// Stride
+						  (void*)offsetof(sVert_xyzw_n_RGBA, x));   //(void*)0);				// Offset
 
 	glEnableVertexAttribArray(vcol_location);	// vColour
+	//glVertexAttribPointer( vcol_location, 4,	// vColour
+	//					   GL_FLOAT, GL_FALSE,
+	//					   sizeof(sVert_xyzw_RGBA),		// sizeof(float) * 6,
+	//					   (void*)offsetof(sVert_xyzw_RGBA, r));		// ( void* )( sizeof(float) * 4 ));
 	glVertexAttribPointer( vcol_location, 4,	// vColour
 						   GL_FLOAT, GL_FALSE,
-						   sizeof(sVert_xyzw_RGBA),		// sizeof(float) * 6,
-						   (void*)offsetof(sVert_xyzw_RGBA, r));		// ( void* )( sizeof(float) * 4 ));
+						   sizeof(sVert_xyzw_n_RGBA),		// sizeof(float) * 6,
+						   (void*)offsetof(sVert_xyzw_n_RGBA, r));		// ( void* )( sizeof(float) * 4 ));
+
+	// Also the normals...
+	glEnableVertexAttribArray(vnorm_location);	// vNormal
+	glVertexAttribPointer( vcol_location, 4,	// vNormal
+						   GL_FLOAT, GL_FALSE,
+						   sizeof(sVert_xyzw_n_RGBA),		
+						   (void*)offsetof(sVert_xyzw_n_RGBA, nx));		
+
 
 	// Now that all the parts are set up, set the VAO to zero
 	glBindVertexArray(0);
@@ -307,7 +327,8 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 	// - sVert was made to match the shader vertex attrib format
 
 //	drawInfo.pVertices = new sVert[drawInfo.numberOfVertices];
-	drawInfo.pVertices = new sVert_xyzw_RGBA[drawInfo.numberOfVertices];
+//	drawInfo.pVertices = new sVert_xyzw_RGBA[drawInfo.numberOfVertices];
+	drawInfo.pVertices = new sVert_xyzw_n_RGBA[drawInfo.numberOfVertices];
 
 	// Optional clear array to zero 
 	//memset( drawInfo.pVertices, 0, sizeof(sVert) * drawInfo.numberOfVertices);
@@ -324,6 +345,14 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 		drawInfo.pVertices[index].g = vecTempPlyVerts[index].colour.g;
 		drawInfo.pVertices[index].b = vecTempPlyVerts[index].colour.b;
 		drawInfo.pVertices[index].a = vecTempPlyVerts[index].colour.a;
+
+		// Also normals:
+		drawInfo.pVertices[index].nx = vecTempPlyVerts[index].normal.x;
+		drawInfo.pVertices[index].ny = vecTempPlyVerts[index].normal.y;
+		drawInfo.pVertices[index].nz = vecTempPlyVerts[index].normal.z;
+		drawInfo.pVertices[index].nw = 1.0f;	// If in doubt, set 4th to 1
+
+
 	}// for ( unsigned int index...
 
 
