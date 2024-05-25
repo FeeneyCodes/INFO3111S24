@@ -23,9 +23,14 @@ struct sLight
 					// 2 = directional light
 	vec4 param2;	// x = 0 for off, 1 for on
 };
+// 
+const int SPOT_LIGHT_TYPE = 1;
+const int DIRECTIONAL_LIGHT_TYPE = 2;
 
 const int NUMBEROFLIGHTS = 10;
 uniform sLight theLights[NUMBEROFLIGHTS];
+
+uniform vec3 eyeLocation;
 
 
 vec4 calcualteLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal, 
@@ -43,14 +48,17 @@ void main()
 //	float distanceToLight = distance(lightPosition, vertWorldPos)
 //	pixelColour.rgb *= 1.0f / distanceToLight;
 	
-//	pixelColour.rgb = vertNormal.xyz;
+	pixelColour.rgb = vertexNormal.xyz;
 
-	vec4 vertexSpecular = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+//	vec4 vertexSpecular = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+//
+//	vec4 lightContrib = calcualteLightContrib( vertexModelColour.rgb, 
+//	                                           vertexNormal.xyz, 
+//	                                           vertexWorldPosition.xyz,
+//	                                           vertexSpecular );
+//											   
+//	pixelColour.rgb = lightContrib.rgb;
 
-	pixelColour.rgb = calcualteLightContrib( vertexModelColour.rgb, 
-	                                         vertexNormal.xyz, 
-											 vertexWorldPosition.xyz,
-											 vertexSpecular );
 }
 
 
