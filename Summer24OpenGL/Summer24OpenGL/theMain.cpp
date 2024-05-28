@@ -472,7 +472,7 @@ void LoadModelsIntoScene(void)
     ::g_pSmoothSphere->bIsWireFrame = true;
     ::g_pSmoothSphere->bOverrideVertexModelColour = true;
     ::g_pSmoothSphere->colourRGB = glm::vec3(1.0f);
-    ::g_pSmoothSphere->scale = 1.0f;
+    ::g_pSmoothSphere->scale = 0.1f;
     ::g_MeshesToDraw.push_back(::g_pSmoothSphere);
 
 

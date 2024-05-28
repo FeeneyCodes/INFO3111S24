@@ -16,7 +16,7 @@ extern std::vector< cMeshObject* > g_MeshesToDraw;
 
 extern cMeshObject* g_pSmoothSphere;
 
-extern cLightManager* g_pMeshManager;// = NULL;
+extern cLightManager* g_pLights;// = NULL;
 
 
 
@@ -101,35 +101,51 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     {
         if (key == GLFW_KEY_A)
         {
-//            ->position.x -= OBJECT_MOVE_SPEED;
-            ::g_pSmoothSphere->position.x -= OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.x -= OBJECT_MOVE_SPEED;
+//            ::g_pSmoothSphere->position.x -= OBJECT_MOVE_SPEED;
         }
         if (key == GLFW_KEY_D) {
-            ::g_pSmoothSphere->position.x += OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.x += OBJECT_MOVE_SPEED;
         }
 
         if (key == GLFW_KEY_Q)
         {
-            ::g_pSmoothSphere->position.y -= OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.x -= OBJECT_MOVE_SPEED;
         }
         if (key == GLFW_KEY_E) {
-            ::g_pSmoothSphere->position.y += OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.y += OBJECT_MOVE_SPEED;
         }
 
         if (key == GLFW_KEY_W)
         {
-            ::g_pSmoothSphere->position.z += OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.z += OBJECT_MOVE_SPEED;
         }
         if (key == GLFW_KEY_S) {
-            ::g_pSmoothSphere->position.z -= OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.z -= OBJECT_MOVE_SPEED;
         }
 
-        if (key == GLFW_KEY_9)
+        // 1 and 2 changes linear attenuation
+        // 	vec4 atten;		// x = constant, y = linear, z = quadratic, w = DistanceCutOff
+        if (key == GLFW_KEY_1)
         {
-            ::g_pSmoothSphere->bIsVisible = false;
+            // Drop by 1%
+            ::g_pLights->theLights[::g_selectedLightIndex].atten.y *= 0.99f;
         }
-        if (key == GLFW_KEY_0) {
-            ::g_pSmoothSphere->bIsVisible = true;
+        if (key == GLFW_KEY_2) {
+            // Increase linear attenuation by 1%
+            ::g_pLights->theLights[::g_selectedLightIndex].atten.y *= 1.01f;
+        }
+
+        // 3 and 4 changes quadratic
+        // 	vec4 atten;		// x = constant, y = linear, z = quadratic, w = DistanceCutOff
+        if (key == GLFW_KEY_3)
+        {
+            // Drop by 1%
+            ::g_pLights->theLights[::g_selectedLightIndex].atten.z *= 0.99f;
+        }
+        if (key == GLFW_KEY_4) {
+            // Increase linear attenuation by 1%
+            ::g_pLights->theLights[::g_selectedLightIndex].atten.z *= 1.01f;
         }
 
 
