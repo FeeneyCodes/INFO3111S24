@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "cLightManager.h"
 
 
 extern glm::vec3 g_cameraEye;//  = glm::vec3(0.0, 0.0, -20.0f);
@@ -13,9 +14,16 @@ extern glm::vec3 g_cameraEye;//  = glm::vec3(0.0, 0.0, -20.0f);
 // note that this is a pointer because 
 extern std::vector< cMeshObject* > g_MeshesToDraw;
 
+extern cMeshObject* g_pSmoothSphere;
+
+extern cLightManager* g_pMeshManager;// = NULL;
+
+
 
 // The item that I'm currently selecting
 unsigned int g_selectedObjectIndex = 0;
+
+unsigned int g_selectedLightIndex = 0;
 
 
 bool isShiftDown(int mods)
@@ -88,7 +96,45 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
     const float OBJECT_MOVE_SPEED = 0.5f;
 
-    // ONLY the shift key is down
+    // ONLY the control key is down
+    if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
+    {
+        if (key == GLFW_KEY_A)
+        {
+//            ->position.x -= OBJECT_MOVE_SPEED;
+            ::g_pSmoothSphere->position.x -= OBJECT_MOVE_SPEED;
+        }
+        if (key == GLFW_KEY_D) {
+            ::g_pSmoothSphere->position.x += OBJECT_MOVE_SPEED;
+        }
+
+        if (key == GLFW_KEY_Q)
+        {
+            ::g_pSmoothSphere->position.y -= OBJECT_MOVE_SPEED;
+        }
+        if (key == GLFW_KEY_E) {
+            ::g_pSmoothSphere->position.y += OBJECT_MOVE_SPEED;
+        }
+
+        if (key == GLFW_KEY_W)
+        {
+            ::g_pSmoothSphere->position.z += OBJECT_MOVE_SPEED;
+        }
+        if (key == GLFW_KEY_S) {
+            ::g_pSmoothSphere->position.z -= OBJECT_MOVE_SPEED;
+        }
+
+        if (key == GLFW_KEY_9)
+        {
+            ::g_pSmoothSphere->bIsVisible = false;
+        }
+        if (key == GLFW_KEY_0) {
+            ::g_pSmoothSphere->bIsVisible = true;
+        }
+
+
+    }//if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
+
     if ((mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT)
     {
         // Then shift (and maybe something else) is down

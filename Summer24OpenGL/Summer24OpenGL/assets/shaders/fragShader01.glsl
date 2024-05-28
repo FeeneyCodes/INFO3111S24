@@ -3,7 +3,7 @@
 //in vec4 color;
 //in vec4 vertNormal;
 
-in vec4 vertexModelColour;
+in vec4 vertexColour;
 in vec4 vertexNormal;
 in vec4 vertexWorldPosition;
 
@@ -23,12 +23,19 @@ struct sLight
 					// 2 = directional light
 	vec4 param2;	// x = 0 for off, 1 for on
 };
+
+
 // 
 const int SPOT_LIGHT_TYPE = 1;
 const int DIRECTIONAL_LIGHT_TYPE = 2;
 
 const int NUMBEROFLIGHTS = 10;
 uniform sLight theLights[NUMBEROFLIGHTS];
+//
+//uniform vec4 lights_position[NUMBEROFLIGHTS];
+//uniform vec4 lights_diffuse[NUMBEROFLIGHTS];
+//uniform vec4 lights_specular[NUMBEROFLIGHTS];
+//...
 
 uniform vec3 eyeLocation;
 
@@ -36,28 +43,22 @@ uniform vec3 eyeLocation;
 vec4 calcualteLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal, 
                             vec3 vertexWorldPos, vec4 vertexSpecular );
 
-const vec3 lightPosition = vec3( 0.0f, 30.0f, 0.0f );
-
 void main()
 {
 //	gl_FragColor = vec4(color, 1.0);
 	
 //	pixelColour = vec4( color, 1.0f );
-	pixelColour = vertexModelColour;
+	pixelColour = vertexColour;
 	
-//	float distanceToLight = distance(lightPosition, vertWorldPos)
-//	pixelColour.rgb *= 1.0f / distanceToLight;
-	
-	pixelColour.rgb = vertexNormal.xyz;
+	// Object specular is white (light hightlight colour is white)
+	vec4 vertexSpecular = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-//	vec4 vertexSpecular = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-//
-//	vec4 lightContrib = calcualteLightContrib( vertexModelColour.rgb, 
-//	                                           vertexNormal.xyz, 
-//	                                           vertexWorldPosition.xyz,
-//	                                           vertexSpecular );
-//											   
-//	pixelColour.rgb = lightContrib.rgb;
+	vec4 lightContrib = calcualteLightContrib( vertexColour.rgb, 
+	                                           vertexNormal.xyz, 
+	                                           vertexWorldPosition.xyz,
+	                                           vertexSpecular );
+											   
+	pixelColour.rgb = lightContrib.rgb;
 
 }
 

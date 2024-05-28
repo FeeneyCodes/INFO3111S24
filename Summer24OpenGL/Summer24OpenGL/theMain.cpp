@@ -22,6 +22,7 @@
 
 #include "cShaderManager/cShaderManager.h"
 #include "cVAOManager/cVAOManager.h"
+#include "cLightManager.h"
 
 
 #include <vector>
@@ -43,6 +44,11 @@ cShaderManager* g_pTheShaderManager = NULL;     // Actual thing is on the HEAP
 //cShaderManager TheShaderManager;                // Stack
 
 cVAOManager* g_pMeshManager = NULL;
+
+cLightManager* g_pLights = NULL;
+
+// This is some object we can move about
+cMeshObject* g_pSmoothSphere = NULL;
 
 
 static void error_callback(int error, const char* description)
@@ -144,6 +150,28 @@ int main(void)
 
     // Don't draw the "back" part of the objects.
 //    glCullFace(GL_BACK);
+
+
+    // Create the "light manager"
+    ::g_pLights = new cLightManager();
+
+    // Get the uniform locations of all the params of the lights
+    ::g_pLights->GetUniformLocations(program);
+
+    // 
+    ::g_pLights->theLights[0].position = glm::vec4(0.0f, 25.0f, 0.0f, 1.0f);
+    ::g_pLights->theLights[0].diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    //
+    ::g_pLights->theLights[0].param1.x = 0.0f;  // Point light
+    // Turn on
+    ::g_pLights->theLights[0].param2.x = 1.0f;  // Turn on
+    // Set the attenuation
+    ::g_pLights->theLights[0].atten.x = 0.0f;   // Constant
+    ::g_pLights->theLights[0].atten.y = 0.01f;   // Linear
+    ::g_pLights->theLights[0].atten.z = 0.005f;   // Quadratic
+
+
+
    
     // Main loop runs forever
     while ( ! glfwWindowShouldClose(window) )
@@ -189,6 +217,13 @@ int main(void)
 //        mvp = p * v * m;
 
 
+        // Place light #0 where the sphere is
+        ::g_pLights->theLights[0].position = glm::vec4( g_pSmoothSphere->position, 1.0f);
+
+        // Copy the light information to the shader
+        ::g_pLights->UpdateShaderUniforms(program);
+
+
         // Start drawing the scene
         // 
         // i.e. draw all the things listed in this:
@@ -230,6 +265,9 @@ int main(void)
                                                glm::vec3(pCurrentMesh->scale,
                                                          pCurrentMesh->scale,
                                                          pCurrentMesh->scale));
+
+//            // For normals, we could keep track of only the rotation
+//            glm::mat4 matRotationOnly = matRotateX * matRotateY * matRotateZ;
 
             // The order of these is important
             // 1 * 4 * 12 * 3 = 12 * 4 * 12 * 3
@@ -285,6 +323,9 @@ int main(void)
             GLint mModelIT_location = glGetUniformLocation(program, "mModel_InverseTranspose");
 
             // Calculate the "inverse transpose of the model matrix"
+            // Gets rid of any translation (movement) and scaling,
+            //  leaving only the rotation transformation
+            // (We use this for the normal)
             glm::mat4 matModelIT = glm::inverse(glm::transpose(matModel));
 
             glUniformMatrix4fv(mModelIT_location, 1, GL_FALSE,
@@ -403,11 +444,39 @@ void LoadFilesIntoVAOManager(GLuint program)
             << wearhouseMesh.numberOfVertices << " vertices" << std::endl;
     }
 
+    sModelDrawInfo sphereMesh;
+    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Isoshphere_flat_4div_xyz_n_rgba.ply", sphereMesh, program))
+    {
+        std::cout << "loaded: "
+            << sphereMesh.meshName << " "
+            << sphereMesh.numberOfVertices << " vertices" << std::endl;
+    }
+
+    sModelDrawInfo sphereMeshInverted;
+    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Isoshphere_smooth_inverted_normals_xyz_n_rgba.ply", sphereMesh, program))
+    {
+        std::cout << "loaded: "
+            << sphereMeshInverted.meshName << " "
+            << sphereMeshInverted.numberOfVertices << " vertices" << std::endl;
+    }
+
     return;
 }
 
 void LoadModelsIntoScene(void)
 {
+
+    ::g_pSmoothSphere = new cMeshObject();
+//    ::g_pSmoothSphere->meshFileName = "assets/models/Isoshphere_flat_4div_xyz_n_rgba.ply";
+    ::g_pSmoothSphere->meshFileName = "assets/models/Isoshphere_smooth_inverted_normals_xyz_n_rgba.ply";
+    ::g_pSmoothSphere->bIsWireFrame = true;
+    ::g_pSmoothSphere->bOverrideVertexModelColour = true;
+    ::g_pSmoothSphere->colourRGB = glm::vec3(1.0f);
+    ::g_pSmoothSphere->scale = 1.0f;
+    ::g_MeshesToDraw.push_back(::g_pSmoothSphere);
+
+
+
         // Load the models I'd like to draw in the scene
     cMeshObject* pCow = new cMeshObject();
     pCow->meshFileName = "assets/models/cow_xyz_n_rgba.ply";
@@ -449,6 +518,10 @@ void LoadModelsIntoScene(void)
 //    pWarehouse->bIsWireFrame = true;
     pWarehouse->position.y = -10.0f;
     pWarehouse->orientation.y = glm::radians(-90.0f);
+    //
+    pWarehouse->bOverrideVertexModelColour = true;
+    // rgb(68, 109, 122)
+    pWarehouse->colourRGB = glm::vec3(68.0f / 255.0f, 109.0f / 255.0f, 122.0f / 255.0f);
     ::g_MeshesToDraw.push_back(pWarehouse);
 
     return;
