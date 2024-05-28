@@ -18,6 +18,8 @@ extern cMeshObject* g_pSmoothSphere;
 
 extern cLightManager* g_pLights;// = NULL;
 
+bool g_ShowLightDebugSphereThings = true;
+
 
 
 // The item that I'm currently selecting
@@ -110,7 +112,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
         if (key == GLFW_KEY_Q)
         {
-            ::g_pLights->theLights[::g_selectedLightIndex].position.x -= OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.y -= OBJECT_MOVE_SPEED;
         }
         if (key == GLFW_KEY_E) {
             ::g_pLights->theLights[::g_selectedLightIndex].position.y += OBJECT_MOVE_SPEED;
@@ -148,6 +150,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             ::g_pLights->theLights[::g_selectedLightIndex].atten.z *= 1.01f;
         }
 
+
+        if (key == GLFW_KEY_9)
+        {
+            g_ShowLightDebugSphereThings = false;
+        }
+        if (key == GLFW_KEY_0) {
+            g_ShowLightDebugSphereThings = true;
+        }
 
     }//if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
 

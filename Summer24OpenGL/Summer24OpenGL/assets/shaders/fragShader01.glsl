@@ -7,7 +7,7 @@ in vec4 vertexColour;
 in vec4 vertexNormal;
 in vec4 vertexWorldPosition;
 
-
+// output to the screen
 out vec4 pixelColour;
 
 struct sLight
@@ -39,6 +39,9 @@ uniform sLight theLights[NUMBEROFLIGHTS];
 
 uniform vec3 eyeLocation;
 
+// If true, then we DON'T calcualte the light contrib
+uniform bool bDoNotLight;
+
 
 vec4 calcualteLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal, 
                             vec3 vertexWorldPos, vec4 vertexSpecular );
@@ -49,6 +52,12 @@ void main()
 	
 //	pixelColour = vec4( color, 1.0f );
 	pixelColour = vertexColour;
+	
+	if ( bDoNotLight )
+	{
+		// Early exit. don't do light calculation
+		return;
+	}
 	
 	// Object specular is white (light hightlight colour is white)
 	vec4 vertexSpecular = vec4(1.0f, 1.0f, 1.0f, 1.0f);

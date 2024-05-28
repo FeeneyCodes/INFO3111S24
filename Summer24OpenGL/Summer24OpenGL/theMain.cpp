@@ -23,7 +23,7 @@
 #include "cShaderManager/cShaderManager.h"
 #include "cVAOManager/cVAOManager.h"
 #include "cLightManager.h"
-
+#include "cLightHelper/cLightHelper.h"
 
 #include <vector>
 #include "cMeshObject.h"
@@ -50,6 +50,8 @@ cLightManager* g_pLights = NULL;
 // This is some object we can move about
 cMeshObject* g_pSmoothSphere = NULL;
 
+extern bool g_ShowLightDebugSphereThings;
+
 
 static void error_callback(int error, const char* description)
 {
@@ -59,6 +61,8 @@ static void error_callback(int error, const char* description)
 //     void function_name(GLFWwindow* window, int key, int scancode, int action, int mods)
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
+
+void DrawMesh(cMeshObject* pCurrentMesh, GLuint shaderProgram);
 
 int main(void)
 {
@@ -218,11 +222,28 @@ int main(void)
 
 
         // Place light #0 where the sphere is
-        ::g_pLights->theLights[0].position = glm::vec4( g_pSmoothSphere->position, 1.0f);
+//        ::g_pLights->theLights[0].position = glm::vec4( g_pSmoothSphere->position, 1.0f);
+        ::g_pSmoothSphere->position = glm::vec3(::g_pLights->theLights[0].position);
 
         // Copy the light information to the shader
         ::g_pLights->UpdateShaderUniforms(program);
 
+        // The project and view stay the same for the entire scene 
+        // (like they stay the same as we draw all the objects this pass (or frame))
+        GLint mProj_location = glGetUniformLocation(program, "mProj");
+        GLint mView_location = glGetUniformLocation(program, "mView");
+
+        glUniformMatrix4fv(mProj_location, 1, GL_FALSE,
+                           glm::value_ptr(matProjection));
+
+        glUniformMatrix4fv(mView_location, 1, GL_FALSE,
+                           glm::value_ptr(matView));
+
+
+        // Turn on the lighting
+        // uniform bool bDoNotLight;
+        GLint bDoNotLight_UL = glGetUniformLocation(program, "bDoNotLight");
+        glUniform1f(bDoNotLight_UL, (GLint)GL_FALSE);        // Pass 1.0f;
 
         // Start drawing the scene
         // 
@@ -234,144 +255,87 @@ int main(void)
 
             cMeshObject* pCurrentMesh = ::g_MeshesToDraw[index];
 
-            // Is it visible?
-            if ( ! pCurrentMesh->bIsVisible ) 
-            {
-                // Skip it
-                continue;
-            }
 
-
-       //         mat4x4_identity(m);
-            glm::mat4 matModel = glm::mat4(1.0f);
-
-            glm::mat4 matTranslation = glm::translate(glm::mat4(1.0f),
-                                                      pCurrentMesh->position);
-
-            // Euler axes
-            glm::mat4 matRotateX = glm::rotate(glm::mat4(1.0f),
-                                               pCurrentMesh->orientation.x,
-                                               glm::vec3(1.0f, 0.0f, 0.0f));
-
-            glm::mat4 matRotateY = glm::rotate(glm::mat4(1.0f),
-                                               pCurrentMesh->orientation.y,
-                                               glm::vec3(0.0f, 1.0f, 0.0f));
-
-            glm::mat4 matRotateZ = glm::rotate(glm::mat4(1.0f),
-                                               pCurrentMesh->orientation.z,
-                                               glm::vec3(0.0f, 0.0f, 1.0f));
-
-            glm::mat4 matScaleXYZ = glm::scale(glm::mat4(1.0f), 
-                                               glm::vec3(pCurrentMesh->scale,
-                                                         pCurrentMesh->scale,
-                                                         pCurrentMesh->scale));
-
-//            // For normals, we could keep track of only the rotation
-//            glm::mat4 matRotationOnly = matRotateX * matRotateY * matRotateZ;
-
-            // The order of these is important
-            // 1 * 4 * 12 * 3 = 12 * 4 * 12 * 3
-            matModel = matModel * matTranslation;
-
-            matModel = matModel * matRotateX;
-            matModel = matModel * matRotateY;
-            matModel = matModel * matRotateZ;
-
-            matModel = matModel * matScaleXYZ;
-
-
-            ////mat4x4_rotate_Z(m, m, (float) glfwGetTime());
-            //glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f),
-            //                                (float)glfwGetTime(),
-            //                                glm::vec3(0.0f, 0.0, 1.0f));
-
-    //        m = m * rotateZ;
-
-
-
-            //glUseProgram(program);
-
-            // GL_LINE gives you "wireframe"
-            // GL_FILL is default (fully rendered)
-            if ( pCurrentMesh->bIsWireFrame )
-            {
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            }
-            else
-            {
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            }
-//            glPointSize(10);
-            
-
-
-            GLint mProj_location = glGetUniformLocation(program, "mProj");
-            GLint mView_location = glGetUniformLocation(program, "mView");
-            GLint mModel_location = glGetUniformLocation(program, "mModel");
-
-            glUniformMatrix4fv(mProj_location, 1, GL_FALSE, 
-                               glm::value_ptr(matProjection) );
-
-            glUniformMatrix4fv(mView_location, 1, GL_FALSE,
-                               glm::value_ptr(matView) );
-
-            glUniformMatrix4fv(mModel_location, 1, GL_FALSE,
-                               glm::value_ptr(matModel) );
-
-            // We need this for lighting
-            // uniform mat4 mModel_InverseTranspose;
-            GLint mModelIT_location = glGetUniformLocation(program, "mModel_InverseTranspose");
-
-            // Calculate the "inverse transpose of the model matrix"
-            // Gets rid of any translation (movement) and scaling,
-            //  leaving only the rotation transformation
-            // (We use this for the normal)
-            glm::mat4 matModelIT = glm::inverse(glm::transpose(matModel));
-
-            glUniformMatrix4fv(mModelIT_location, 1, GL_FALSE,
-                               glm::value_ptr(matModelIT) );
-
-
-            // Do I override the vertex colour
-            GLint colourOverride_UL = glGetUniformLocation(program, "colourOverride");
-            GLint bUseOverrideColour_UL = glGetUniformLocation(program, "bUseOverrideColour");
-
-            if ( pCurrentMesh->bOverrideVertexModelColour )
-            {
-                glUniform3f(colourOverride_UL,              // uniform vec3 colourOverride;	
-                            pCurrentMesh->colourRGB.r,
-                            pCurrentMesh->colourRGB.g,
-                            pCurrentMesh->colourRGB.b);
-
-                // All types are really floats, so a bool is really a single float
-                glUniform1f(bUseOverrideColour_UL, (GLfloat)GL_TRUE);       // or 1.0
-            }
-            else
-            {
-                // All types are really floats, so a bool is really a single float
-                glUniform1f(bUseOverrideColour_UL, (GLfloat)GL_FALSE);       // or 0
-            }
-
-
-
-            sModelDrawInfo modelInfo;
-            if (::g_pMeshManager->FindDrawInfoByModelName(pCurrentMesh->meshFileName, modelInfo))
-            {
-                // Found it!
-                glBindVertexArray(modelInfo.VAO_ID);
-
-                glDrawElements(GL_TRIANGLES,
-                               modelInfo.numberOfIndices,
-                               GL_UNSIGNED_INT,
-                               (void*)0);
-
-                glBindVertexArray(0);
-            }
+            DrawMesh(pCurrentMesh, program);
 
         }//for ( unsigned int index 
 
 
-         
+//        DrawMesh(::g_pSmoothSphere, program);
+// 
+
+        if (g_ShowLightDebugSphereThings)
+        {
+
+            // Draw concentric sphers based on how bright the light is at 'that' distance
+            cLightHelper myLH;
+
+            const float errorValueForLightLevelGuess = 0.001f;
+            const float INFINITE_DISTANCE = 100000.0f;
+
+            // Turn off the lights
+            glUniform1f(bDoNotLight_UL, (GLint)GL_TRUE);        // Pass 1.0f;
+
+            // The centre of the light
+            ::g_pSmoothSphere->scale = 0.1f;
+            ::g_pSmoothSphere->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+            DrawMesh(::g_pSmoothSphere, program);
+
+            float distanceAt75Percent =
+                myLH.calcApproxDistFromAtten(0.75f,
+                                             errorValueForLightLevelGuess,
+                                             INFINITE_DISTANCE,
+                                             ::g_pLights->theLights[0].atten.x,     // Const
+                                             ::g_pLights->theLights[0].atten.y,     // Linear
+                                             ::g_pLights->theLights[0].atten.z);    // Quad
+
+            ::g_pSmoothSphere->scale = distanceAt75Percent;
+            ::g_pSmoothSphere->colourRGB = glm::vec3(0.5f, 0.5f, 0.0f);
+            DrawMesh(::g_pSmoothSphere, program);
+
+
+            float distanceAt50Percent = 
+                myLH.calcApproxDistFromAtten(0.5f,
+                                         errorValueForLightLevelGuess,
+                                         INFINITE_DISTANCE,
+                                         ::g_pLights->theLights[0].atten.x,     // Const
+                                         ::g_pLights->theLights[0].atten.y,     // Linear
+                                         ::g_pLights->theLights[0].atten.z);    // Quad
+
+            ::g_pSmoothSphere->scale = distanceAt50Percent;
+            ::g_pSmoothSphere->colourRGB = glm::vec3(0.5f, 0.0f, 0.0f);
+            DrawMesh(::g_pSmoothSphere, program);
+
+
+            float distanceAt25Percent =
+                myLH.calcApproxDistFromAtten(0.25f,
+                                             errorValueForLightLevelGuess,
+                                             INFINITE_DISTANCE,
+                                             ::g_pLights->theLights[0].atten.x,     // Const
+                                             ::g_pLights->theLights[0].atten.y,     // Linear
+                                             ::g_pLights->theLights[0].atten.z);    // Quad
+
+            ::g_pSmoothSphere->scale = distanceAt25Percent;
+            ::g_pSmoothSphere->colourRGB = glm::vec3(0.0f, 0.5f, 0.0f);
+            DrawMesh(::g_pSmoothSphere, program);
+
+
+
+                                    
+            float distanceAt01Percent = 
+            myLH.calcApproxDistFromAtten(0.01f,
+                                        errorValueForLightLevelGuess,
+                                        INFINITE_DISTANCE,
+                                        ::g_pLights->theLights[0].atten.x,     // Const
+                                        ::g_pLights->theLights[0].atten.y,     // Linear
+                                        ::g_pLights->theLights[0].atten.z);    // Quad
+
+            ::g_pSmoothSphere->scale = distanceAt01Percent;
+            ::g_pSmoothSphere->colourRGB = glm::vec3(0.0f, 0.5f, 0.5f);
+            DrawMesh(::g_pSmoothSphere, program);
+
+            glUniform1f(bDoNotLight_UL, (GLint)GL_FALSE);        // Pass 1.0f;
+        }//if (g_ShowLightDebugSphereThings)
          
          // Update the window title to show where the camera is...
         std::stringstream ssWindowsTitle;
@@ -380,10 +344,20 @@ int main(void)
             << "Camera (xyz)"
             << ::g_cameraEye.x << ", "
             << ::g_cameraEye.y << ", "
-            << ::g_cameraEye.z 
-            << "  " 
-            << "selected object ID: " 
-            << ::g_selectedObjectIndex;
+            << ::g_cameraEye.z
+            << "  "
+            << "light#0: "
+            << ::g_pLights->theLights[0].position.x << ", "
+            << ::g_pLights->theLights[0].position.y << ", "
+            << ::g_pLights->theLights[0].position.z
+            << " linear: "
+            << ::g_pLights->theLights[0].atten.y << "  "        // linear attenuation
+            << " quad: "
+            << ::g_pLights->theLights[0].atten.z << "  ";        // Quadratic
+
+
+//            << "selected object ID: " 
+//            << ::g_selectedObjectIndex;
 
 //        glfwSetWindowTitle(window, "HEY!");
         glfwSetWindowTitle(window, ssWindowsTitle.str().c_str() );
@@ -467,13 +441,14 @@ void LoadModelsIntoScene(void)
 {
 
     ::g_pSmoothSphere = new cMeshObject();
-//    ::g_pSmoothSphere->meshFileName = "assets/models/Isoshphere_flat_4div_xyz_n_rgba.ply";
-    ::g_pSmoothSphere->meshFileName = "assets/models/Isoshphere_smooth_inverted_normals_xyz_n_rgba.ply";
+    ::g_pSmoothSphere->meshFileName = "assets/models/Isoshphere_flat_4div_xyz_n_rgba.ply";
+//    ::g_pSmoothSphere->meshFileName = "assets/models/Isoshphere_smooth_inverted_normals_xyz_n_rgba.ply";
     ::g_pSmoothSphere->bIsWireFrame = true;
     ::g_pSmoothSphere->bOverrideVertexModelColour = true;
     ::g_pSmoothSphere->colourRGB = glm::vec3(1.0f);
-    ::g_pSmoothSphere->scale = 0.1f;
-    ::g_MeshesToDraw.push_back(::g_pSmoothSphere);
+    ::g_pSmoothSphere->scale = 1.0f;
+    ::g_pSmoothSphere->bIsVisible = true;
+//    ::g_MeshesToDraw.push_back(::g_pSmoothSphere);
 
 
 
@@ -523,6 +498,147 @@ void LoadModelsIntoScene(void)
     // rgb(68, 109, 122)
     pWarehouse->colourRGB = glm::vec3(68.0f / 255.0f, 109.0f / 255.0f, 122.0f / 255.0f);
     ::g_MeshesToDraw.push_back(pWarehouse);
+
+    return;
+}
+
+void DrawMesh(cMeshObject* pCurrentMesh, GLuint shaderProgram)
+{
+                // Is it visible?
+    if (!pCurrentMesh->bIsVisible)
+    {
+        // Skip it
+        //continue;
+        return;
+    }
+
+
+//         mat4x4_identity(m);
+    glm::mat4 matModel = glm::mat4(1.0f);
+
+    glm::mat4 matTranslation = glm::translate(glm::mat4(1.0f),
+                                              pCurrentMesh->position);
+
+    // Euler axes
+    glm::mat4 matRotateX = glm::rotate(glm::mat4(1.0f),
+                                       pCurrentMesh->orientation.x,
+                                       glm::vec3(1.0f, 0.0f, 0.0f));
+
+    glm::mat4 matRotateY = glm::rotate(glm::mat4(1.0f),
+                                       pCurrentMesh->orientation.y,
+                                       glm::vec3(0.0f, 1.0f, 0.0f));
+
+    glm::mat4 matRotateZ = glm::rotate(glm::mat4(1.0f),
+                                       pCurrentMesh->orientation.z,
+                                       glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::mat4 matScaleXYZ = glm::scale(glm::mat4(1.0f),
+                                       glm::vec3(pCurrentMesh->scale,
+                                                 pCurrentMesh->scale,
+                                                 pCurrentMesh->scale));
+
+//            // For normals, we could keep track of only the rotation
+//            glm::mat4 matRotationOnly = matRotateX * matRotateY * matRotateZ;
+
+            // The order of these is important
+            // 1 * 4 * 12 * 3 = 12 * 4 * 12 * 3
+    matModel = matModel * matTranslation;
+
+    matModel = matModel * matRotateX;
+    matModel = matModel * matRotateY;
+    matModel = matModel * matRotateZ;
+
+    matModel = matModel * matScaleXYZ;
+
+
+    ////mat4x4_rotate_Z(m, m, (float) glfwGetTime());
+    //glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f),
+    //                                (float)glfwGetTime(),
+    //                                glm::vec3(0.0f, 0.0, 1.0f));
+
+//        m = m * rotateZ;
+
+
+
+        //glUseProgram(program);
+
+        // GL_LINE gives you "wireframe"
+        // GL_FILL is default (fully rendered)
+    if (pCurrentMesh->bIsWireFrame)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+//            glPointSize(10);
+
+
+
+    //GLint mProj_location = glGetUniformLocation(program, "mProj");
+    //GLint mView_location = glGetUniformLocation(program, "mView");
+
+    //glUniformMatrix4fv(mProj_location, 1, GL_FALSE,
+    //                   glm::value_ptr(matProjection));
+
+    //glUniformMatrix4fv(mView_location, 1, GL_FALSE,
+    //                   glm::value_ptr(matView));
+
+    GLint mModel_location = glGetUniformLocation(shaderProgram, "mModel");
+
+    glUniformMatrix4fv(mModel_location, 1, GL_FALSE,
+                       glm::value_ptr(matModel));
+
+    // We need this for lighting
+    // uniform mat4 mModel_InverseTranspose;
+    GLint mModelIT_location = glGetUniformLocation(shaderProgram, "mModel_InverseTranspose");
+
+    // Calculate the "inverse transpose of the model matrix"
+    // Gets rid of any translation (movement) and scaling,
+    //  leaving only the rotation transformation
+    // (We use this for the normal)
+    glm::mat4 matModelIT = glm::inverse(glm::transpose(matModel));
+
+    glUniformMatrix4fv(mModelIT_location, 1, GL_FALSE,
+                       glm::value_ptr(matModelIT));
+
+
+    // Do I override the vertex colour
+    GLint colourOverride_UL = glGetUniformLocation(shaderProgram, "colourOverride");
+    GLint bUseOverrideColour_UL = glGetUniformLocation(shaderProgram, "bUseOverrideColour");
+
+    if (pCurrentMesh->bOverrideVertexModelColour)
+    {
+        glUniform3f(colourOverride_UL,              // uniform vec3 colourOverride;	
+                    pCurrentMesh->colourRGB.r,
+                    pCurrentMesh->colourRGB.g,
+                    pCurrentMesh->colourRGB.b);
+
+        // All types are really floats, so a bool is really a single float
+        glUniform1f(bUseOverrideColour_UL, (GLfloat)GL_TRUE);       // or 1.0
+    }
+    else
+    {
+        // All types are really floats, so a bool is really a single float
+        glUniform1f(bUseOverrideColour_UL, (GLfloat)GL_FALSE);       // or 0
+    }
+
+
+
+    sModelDrawInfo modelInfo;
+    if (::g_pMeshManager->FindDrawInfoByModelName(pCurrentMesh->meshFileName, modelInfo))
+    {
+        // Found it!
+        glBindVertexArray(modelInfo.VAO_ID);
+
+        glDrawElements(GL_TRIANGLES,
+                       modelInfo.numberOfIndices,
+                       GL_UNSIGNED_INT,
+                       (void*)0);
+
+        glBindVertexArray(0);
+    }
 
     return;
 }
