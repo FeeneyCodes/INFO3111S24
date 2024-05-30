@@ -7,6 +7,10 @@ in vec4 vertexColour;
 in vec4 vertexNormal;
 in vec4 vertexWorldPosition;
 
+// Now shiny the model is
+uniform vec4 vertexSpecular; //= vec4(1.0f, 1.0f, 1.0f, 100.0f);
+
+
 // output to the screen
 out vec4 pixelColour;
 
@@ -24,12 +28,12 @@ struct sLight
 	vec4 param2;	// x = 0 for off, 1 for on
 };
 
-
 // 
 const int SPOT_LIGHT_TYPE = 1;
 const int DIRECTIONAL_LIGHT_TYPE = 2;
 
 const int NUMBEROFLIGHTS = 10;
+uniform int maxLightIndexInUse;
 uniform sLight theLights[NUMBEROFLIGHTS];
 //
 //uniform vec4 lights_position[NUMBEROFLIGHTS];
@@ -41,6 +45,9 @@ uniform vec3 eyeLocation;
 
 // If true, then we DON'T calcualte the light contrib
 uniform bool bDoNotLight;
+
+//uniform vec3 ambientLightColour;
+
 
 
 vec4 calcualteLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal, 
@@ -60,7 +67,10 @@ void main()
 	}
 	
 	// Object specular is white (light hightlight colour is white)
-	vec4 vertexSpecular = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	// 4th value is now "shiny" the thing is (specular power)
+	// IT STARTS AT 1! (not 0)
+	// And goes to whatever... like 10,000 or 100,000
+//	vec4 vertexSpecular = vec4(1.0f, 1.0f, 1.0f, 100.0f);
 
 	vec4 lightContrib = calcualteLightContrib( vertexColour.rgb, 
 	                                           vertexNormal.xyz, 
@@ -68,6 +78,9 @@ void main()
 	                                           vertexSpecular );
 											   
 	pixelColour.rgb = lightContrib.rgb;
+	
+//	vec3 ambientLightColour = vec3(0.1f, 0.1f, 0.1f);
+//	pixelColour.rgb += ambientLightColour.rgb;
 
 }
 
@@ -129,6 +142,13 @@ vec4 calcualteLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal,
 		// Contribution for this light
 		vec3 vLightToVertex = theLights[index].position.xyz - vertexWorldPos.xyz;	
 		float distanceToLight = length(vLightToVertex);		
+		
+// Distance cut off
+//		if ( distanceToLight > theLights[index].atten.w )
+//		{
+//			return vec4( 0.0f, 0.0f, 0.0f, 1.0f);
+//		}
+
 		vec3 lightVector = normalize(vLightToVertex);		
 		float dotProduct = dot(lightVector, vertexNormal.xyz);	 
 		

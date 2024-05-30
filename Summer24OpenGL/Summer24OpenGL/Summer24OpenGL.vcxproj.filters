@@ -54,6 +54,9 @@
     <ClCompile Include="cLightManager.cpp">
       <Filter>Lights</Filter>
     </ClCompile>
+    <ClCompile Include="sharedThings.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cShaderManager\cShaderManager.h">
@@ -73,6 +76,9 @@
     </ClInclude>
     <ClInclude Include="cLightManager.h">
       <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="sharedThings.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

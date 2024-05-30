@@ -54,6 +54,7 @@ public:
 	GLint param2_UL = -1;
 };
 
+
 class cLightManager
 {
 public:
@@ -63,5 +64,6 @@ public:
 	void UpdateShaderUniforms(GLuint shaderProgram);
 
 	static const int NUMBEROFLIGHTS = 10;
-	cLight theLights[NUMBEROFLIGHTS];
+	cLight theLights[NUMBEROFLIGHTS];  // 0, 1
+
 };

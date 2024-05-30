@@ -11,5 +11,8 @@ cMeshObject::cMeshObject()
 	this->bIsWireFrame = false;	// true;
 	this->bIsVisible = true;
 
+	this->specularHighlightColour = glm::vec3(1.0f, 1.0f, 1.0f);
+	this->shinniness = 1.0f;
+
 };
 

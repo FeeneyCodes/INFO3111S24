@@ -27,6 +27,12 @@ public:
 	bool bOverrideVertexModelColour;
 	glm::vec3 colourRGB;
 
+	// Specular (shininess)
+	// uniform vec4 vertexSpecular;		RGB = colour
+	//									W (4th value) = 1 to 1,000,000?
+	glm::vec3 specularHighlightColour;	// RGB colour of the highlight
+	float shinniness;					// How shiny this is
+
 	bool bIsWireFrame;
 	bool bIsVisible;
 

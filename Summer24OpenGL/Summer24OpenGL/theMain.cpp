@@ -28,6 +28,10 @@
 #include <vector>
 #include "cMeshObject.h"
 
+#include "sharedThings.h"
+
+extern unsigned int g_selectedLightIndex;
+
 
 glm::vec3 g_cameraEye = glm::vec3(0.0, 0.0, -20.0f);
 glm::vec3 g_cameraTarget = glm::vec3(0.0, 0.0, 0.0f);
@@ -37,8 +41,9 @@ extern unsigned int g_selectedObjectIndex;
 void LoadFilesIntoVAOManager(GLuint program);
 // note that this is a pointer because 
 
-std::vector< cMeshObject* > g_MeshesToDraw;
+//std::vector< cMeshObject* > g_MeshesToDraw;
 void LoadModelsIntoScene(void);
+
 
 cShaderManager* g_pTheShaderManager = NULL;     // Actual thing is on the HEAP
 //cShaderManager TheShaderManager;                // Stack
@@ -132,6 +137,10 @@ int main(void)
     // Set the shader to the one we want
     program = ::g_pTheShaderManager->getIDFromFriendlyName("shader1");
 
+    // Choose the shader program we're using
+    glUseProgram(program);
+
+//    glDeleteShader(program);
 
  
 
@@ -146,8 +155,6 @@ int main(void)
 
 
 
-    // Choose the shader program we're using
-    glUseProgram(program);
 
     // Enable the depth text per pixel
     glEnable(GL_DEPTH_TEST);
@@ -162,19 +169,55 @@ int main(void)
     // Get the uniform locations of all the params of the lights
     ::g_pLights->GetUniformLocations(program);
 
+    std::cout << cLightManager::NUMBEROFLIGHTS << std::endl;
+    std::cout << ::g_pLights->NUMBEROFLIGHTS << std::endl;
+
+
     // 
-    ::g_pLights->theLights[0].position = glm::vec4(0.0f, 25.0f, 0.0f, 1.0f);
-    ::g_pLights->theLights[0].diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    ::g_pLights->theLights[0].position = glm::vec4(13.0f, 5.0f, 0.0f, 1.0f);
+    // White light (flourescent) light
+//    ::g_pLights->theLights[0].diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+    // https://www.google.com/search?q=rgb+of+sunlight&oq=rgb+of+sunli&gs_lcrp=EgZjaHJvbWUqBwgAEAAYgAQyBwgAEAAYgAQyBggBEEUYOTINCAIQABiGAxiABBiKBTINCAMQABiGAxiABBiKBTINCAQQABiGAxiABBiKBTINCAUQABiGAxiABBiKBTIKCAYQABiABBiiBKgCALACAQ&sourceid=chrome&ie=UTF-8
+    //255, 222, 131
+    ::g_pLights->theLights[0].diffuse = glm::vec4(255.0f/255.0f, 
+                                                  222.0f/255.0f, 
+                                                  131.0f/255.0f, 
+                                                  1.0f);
     //
     ::g_pLights->theLights[0].param1.x = 0.0f;  // Point light
     // Turn on
+//    ::g_pLights->theLights[0].turnOn();
     ::g_pLights->theLights[0].param2.x = 1.0f;  // Turn on
     // Set the attenuation
     ::g_pLights->theLights[0].atten.x = 0.0f;   // Constant
-    ::g_pLights->theLights[0].atten.y = 0.01f;   // Linear
+    ::g_pLights->theLights[0].atten.y = 0.02f;   // Linear
     ::g_pLights->theLights[0].atten.z = 0.005f;   // Quadratic
 
 
+       // 
+    ::g_pLights->theLights[1].position = glm::vec4(-13.0f, 5.0f, 0.0f, 1.0f);
+    ::g_pLights->theLights[1].diffuse = glm::vec4(0.25f, 1.0f, 0.25f, 1.0f);
+    //
+    ::g_pLights->theLights[1].param1.x = 0.0f;  // Point light
+    // Turn on
+    ::g_pLights->theLights[1].param2.x = 0.0f;  // Turn on
+    // Set the attenuation
+    ::g_pLights->theLights[1].atten.x = 0.0f;   // Constant
+    ::g_pLights->theLights[1].atten.y = 0.02f;   // Linear
+    ::g_pLights->theLights[1].atten.z = 0.005f;   // Quadratic
+
+       // 
+    ::g_pLights->theLights[2].position = glm::vec4(0.0f, 5.0f, 0.0f, 1.0f);
+    ::g_pLights->theLights[2].diffuse = glm::vec4(0.25f, 0.25f, 1.0f, 1.0f);
+    //
+    ::g_pLights->theLights[2].param1.x = 0.0f;  // Point light
+    // Turn on
+    ::g_pLights->theLights[2].param2.x = 0.0f;  // Turn on
+    // Set the attenuation
+    ::g_pLights->theLights[2].atten.x = 0.0f;   // Constant
+    ::g_pLights->theLights[2].atten.y = 0.02f;   // Linear
+    ::g_pLights->theLights[2].atten.z = 0.005f;   // Quadratic
 
    
     // Main loop runs forever
@@ -245,6 +288,9 @@ int main(void)
         GLint bDoNotLight_UL = glGetUniformLocation(program, "bDoNotLight");
         glUniform1f(bDoNotLight_UL, (GLint)GL_FALSE);        // Pass 1.0f;
 
+        GLint ml_UL = glGetUniformLocation(program, "maxLightIndexInUse");
+        glUniform1i(ml_UL, cLightManager::NUMBEROFLIGHTS);
+
         // Start drawing the scene
         // 
         // i.e. draw all the things listed in this:
@@ -264,6 +310,19 @@ int main(void)
 //        DrawMesh(::g_pSmoothSphere, program);
 // 
 
+        //for ( float x = -50.0f; x < 50.0f; x += 5.0f )
+        //{
+        //    ::g_MeshesToDraw[1]->scale = 5.0f;
+        //    ::g_MeshesToDraw[1]->position.x = x;
+        //    ::g_MeshesToDraw[1]->position.y = 10.0f;
+        //    ::g_MeshesToDraw[1]->position.z = 0.0f;
+        //    ::g_MeshesToDraw[1]->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+        //    DrawMesh(::g_MeshesToDraw[1], program);
+        //}
+
+
+
+
         if (g_ShowLightDebugSphereThings)
         {
 
@@ -279,15 +338,16 @@ int main(void)
             // The centre of the light
             ::g_pSmoothSphere->scale = 0.1f;
             ::g_pSmoothSphere->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+            ::g_pSmoothSphere->position = ::g_pLights->theLights[::g_selectedLightIndex].position;
             DrawMesh(::g_pSmoothSphere, program);
 
             float distanceAt75Percent =
                 myLH.calcApproxDistFromAtten(0.75f,
                                              errorValueForLightLevelGuess,
                                              INFINITE_DISTANCE,
-                                             ::g_pLights->theLights[0].atten.x,     // Const
-                                             ::g_pLights->theLights[0].atten.y,     // Linear
-                                             ::g_pLights->theLights[0].atten.z);    // Quad
+                                             ::g_pLights->theLights[::g_selectedLightIndex].atten.x,     // Const
+                                             ::g_pLights->theLights[::g_selectedLightIndex].atten.y,     // Linear
+                                             ::g_pLights->theLights[::g_selectedLightIndex].atten.z);    // Quad
 
             ::g_pSmoothSphere->scale = distanceAt75Percent;
             ::g_pSmoothSphere->colourRGB = glm::vec3(0.5f, 0.5f, 0.0f);
@@ -298,9 +358,9 @@ int main(void)
                 myLH.calcApproxDistFromAtten(0.5f,
                                          errorValueForLightLevelGuess,
                                          INFINITE_DISTANCE,
-                                         ::g_pLights->theLights[0].atten.x,     // Const
-                                         ::g_pLights->theLights[0].atten.y,     // Linear
-                                         ::g_pLights->theLights[0].atten.z);    // Quad
+                                         ::g_pLights->theLights[::g_selectedLightIndex].atten.x,     // Const
+                                         ::g_pLights->theLights[::g_selectedLightIndex].atten.y,     // Linear
+                                         ::g_pLights->theLights[::g_selectedLightIndex].atten.z);    // Quad
 
             ::g_pSmoothSphere->scale = distanceAt50Percent;
             ::g_pSmoothSphere->colourRGB = glm::vec3(0.5f, 0.0f, 0.0f);
@@ -311,9 +371,9 @@ int main(void)
                 myLH.calcApproxDistFromAtten(0.25f,
                                              errorValueForLightLevelGuess,
                                              INFINITE_DISTANCE,
-                                             ::g_pLights->theLights[0].atten.x,     // Const
-                                             ::g_pLights->theLights[0].atten.y,     // Linear
-                                             ::g_pLights->theLights[0].atten.z);    // Quad
+                                             ::g_pLights->theLights[::g_selectedLightIndex].atten.x,     // Const
+                                             ::g_pLights->theLights[::g_selectedLightIndex].atten.y,     // Linear
+                                             ::g_pLights->theLights[::g_selectedLightIndex].atten.z);    // Quad
 
             ::g_pSmoothSphere->scale = distanceAt25Percent;
             ::g_pSmoothSphere->colourRGB = glm::vec3(0.0f, 0.5f, 0.0f);
@@ -323,12 +383,12 @@ int main(void)
 
                                     
             float distanceAt01Percent = 
-            myLH.calcApproxDistFromAtten(0.01f,
+            myLH.calcApproxDistFromAtten(0.01f,     // really 'zero'
                                         errorValueForLightLevelGuess,
                                         INFINITE_DISTANCE,
-                                        ::g_pLights->theLights[0].atten.x,     // Const
-                                        ::g_pLights->theLights[0].atten.y,     // Linear
-                                        ::g_pLights->theLights[0].atten.z);    // Quad
+                                        ::g_pLights->theLights[::g_selectedLightIndex].atten.x,     // Const
+                                        ::g_pLights->theLights[::g_selectedLightIndex].atten.y,     // Linear
+                                        ::g_pLights->theLights[::g_selectedLightIndex].atten.z);    // Quad
 
             ::g_pSmoothSphere->scale = distanceAt01Percent;
             ::g_pSmoothSphere->colourRGB = glm::vec3(0.0f, 0.5f, 0.5f);
@@ -469,18 +529,22 @@ void LoadModelsIntoScene(void)
     pCow2->colourRGB = glm::vec3(0.0f, 1.0f, 0.0f);
     ::g_MeshesToDraw.push_back(pCow2);
 
+
     cMeshObject* pCar = new cMeshObject();
     pCar->meshFileName = "assets/models/de--lorean_xyz_n_rgba.ply";
     pCar->orientation.x = glm::radians(-90.0f);
-    pCar->position.z = 25.0f;
+    pCar->position.z = 0.0f;
+    pCar->scale = 0.5f;
+    pCar->shinniness = 1000.0f;  // 1 = 'flat' like dry clay -- to millions
 //    pCar->bIsWireFrame = true;
-    pCar->bIsVisible = false;
+    pCar->bIsVisible = true;
     ::g_MeshesToDraw.push_back(pCar);
 
-    cMeshObject* pDolphin = new cMeshObject();
-    pDolphin->meshFileName = "assets/models/dolphin_xyz_n_rgba.ply";
-    pDolphin->scale = 0.01f;
-    ::g_MeshesToDraw.push_back(pDolphin);
+    //cMeshObject* pDolphin = new cMeshObject();
+    //pDolphin->meshFileName = "assets/models/dolphin_xyz_n_rgba.ply";
+    //pDolphin->scale = 0.01f;
+    //::g_MeshesToDraw.push_back(pDolphin);
+
 
     cMeshObject* pTerrain = new cMeshObject();
     pTerrain->meshFileName = "assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply";
@@ -623,6 +687,16 @@ void DrawMesh(cMeshObject* pCurrentMesh, GLuint shaderProgram)
         // All types are really floats, so a bool is really a single float
         glUniform1f(bUseOverrideColour_UL, (GLfloat)GL_FALSE);       // or 0
     }
+
+    // Copy over the specular value
+    // uniform vec4 vertexSpecular;
+    GLint vertexSpecular_UL = glGetUniformLocation(shaderProgram, "vertexSpecular");
+    glUniform4f(vertexSpecular_UL,
+                pCurrentMesh->specularHighlightColour.r,
+                pCurrentMesh->specularHighlightColour.g,
+                pCurrentMesh->specularHighlightColour.b,
+                pCurrentMesh->shinniness);
+
 
 
 

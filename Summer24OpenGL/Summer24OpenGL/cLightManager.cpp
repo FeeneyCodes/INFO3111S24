@@ -1,4 +1,5 @@
 #include "cLightManager.h"
+#include <sstream>
 
 cLight::cLight()
 {
@@ -19,8 +20,15 @@ void cLight::setToSpotLightType(void)
 {
 	this->param1.x = 1.0f;
 }
-void cLight::turnOn(void) { this->param2.x = 1.0f; }
-void cLight::turnOff(void) { this->param2.x = 0.0f; }
+void cLight::turnOn(void) 
+{ 
+	this->param2.x = 1.0f; 
+}
+
+void cLight::turnOff(void) 
+{ 
+	this->param2.x = 0.0f; 
+}
 
 cLightManager::cLightManager()
 {
@@ -50,6 +58,21 @@ void cLightManager::GetUniformLocations(GLuint shaderProgram)
 	this->theLights[1].direction_UL = glGetUniformLocation(shaderProgram, "theLights[1].direction");
 	this->theLights[1].param1_UL = glGetUniformLocation(shaderProgram, "theLights[1].param1");
 	this->theLights[1].param2_UL = glGetUniformLocation(shaderProgram, "theLights[1].param2");
+
+	this->theLights[2].position_UL = glGetUniformLocation(shaderProgram, "theLights[2].position");
+	this->theLights[2].diffuse_UL = glGetUniformLocation(shaderProgram, "theLights[2].diffuse");
+	this->theLights[2].specular_UL = glGetUniformLocation(shaderProgram, "theLights[2].specular");
+	this->theLights[2].atten_UL = glGetUniformLocation(shaderProgram, "theLights[2].atten");
+	this->theLights[2].direction_UL = glGetUniformLocation(shaderProgram, "theLights[2].direction");
+	this->theLights[2].param1_UL = glGetUniformLocation(shaderProgram, "theLights[2].param1");
+	this->theLights[2].param2_UL = glGetUniformLocation(shaderProgram, "theLights[2].param2");
+
+	//std::stringstream ssLightName;
+	//for (...)
+	//{
+	//	ssLightName << "theLights[" << lightIndex << "]";
+
+	//	std::sring
 
 	// And so on... for all of your lights
 

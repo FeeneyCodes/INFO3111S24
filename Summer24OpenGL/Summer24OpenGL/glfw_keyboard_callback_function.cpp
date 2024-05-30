@@ -9,14 +9,16 @@
 #include "cLightManager.h"
 
 
-extern glm::vec3 g_cameraEye;//  = glm::vec3(0.0, 0.0, -20.0f);
+//extern glm::vec3 g_cameraEye;//  = glm::vec3(0.0, 0.0, -20.0f);
+//
+//// note that this is a pointer because 
+//extern std::vector< cMeshObject* > g_MeshesToDraw;
+//
+//extern cMeshObject* g_pSmoothSphere;
+//
+//extern cLightManager* g_pLights;// = NULL;
 
-// note that this is a pointer because 
-extern std::vector< cMeshObject* > g_MeshesToDraw;
-
-extern cMeshObject* g_pSmoothSphere;
-
-extern cLightManager* g_pLights;// = NULL;
+#include "sharedThings.h"
 
 bool g_ShowLightDebugSphereThings = true;
 
@@ -77,7 +79,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 
-    const float CAMERA_SPEED = 0.1f;
+
+    const float OBJECT_MOVE_SPEED = 0.5f;
+    const float LIGHT_MOVE_SPEED = 0.5f;
+    const float CAMERA_MOVE_SPEED = 1.0f;
 
     // if shift is down (just shift) then move the selected object
     if (mods == GLFW_MOD_SHIFT)       // 0001   // 0010  // 0100  // 0111
@@ -96,34 +101,32 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     //             --------
     //                 0001
 
-    const float OBJECT_MOVE_SPEED = 0.5f;
-
     // ONLY the control key is down
     if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
     {
         if (key == GLFW_KEY_A)
         {
-            ::g_pLights->theLights[::g_selectedLightIndex].position.x -= OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.x -= LIGHT_MOVE_SPEED;
 //            ::g_pSmoothSphere->position.x -= OBJECT_MOVE_SPEED;
         }
         if (key == GLFW_KEY_D) {
-            ::g_pLights->theLights[::g_selectedLightIndex].position.x += OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.x += LIGHT_MOVE_SPEED;
         }
 
         if (key == GLFW_KEY_Q)
         {
-            ::g_pLights->theLights[::g_selectedLightIndex].position.y -= OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.y -= LIGHT_MOVE_SPEED;
         }
         if (key == GLFW_KEY_E) {
-            ::g_pLights->theLights[::g_selectedLightIndex].position.y += OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.y += LIGHT_MOVE_SPEED;
         }
 
         if (key == GLFW_KEY_W)
         {
-            ::g_pLights->theLights[::g_selectedLightIndex].position.z += OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.z += LIGHT_MOVE_SPEED;
         }
         if (key == GLFW_KEY_S) {
-            ::g_pLights->theLights[::g_selectedLightIndex].position.z -= OBJECT_MOVE_SPEED;
+            ::g_pLights->theLights[::g_selectedLightIndex].position.z -= LIGHT_MOVE_SPEED;
         }
 
         // 1 and 2 changes linear attenuation
@@ -150,6 +153,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             ::g_pLights->theLights[::g_selectedLightIndex].atten.z *= 1.01f;
         }
 
+        //if (key == GLFW_KEY_O) 
+        //{
+        //    // HACK: GOTCHA
+        //    ::g_selectedLightIndex++;
+        //}
 
         if (key == GLFW_KEY_9)
         {
@@ -161,6 +169,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
     }//if ((mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL)
 
+
+    // Move a mesh in the scene
     if ((mods & GLFW_MOD_SHIFT) == GLFW_MOD_SHIFT)
     {
         // Then shift (and maybe something else) is down
@@ -327,39 +337,39 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         if (key == GLFW_KEY_A)
         {
             // Go left
-            ::g_cameraEye.x -= CAMERA_SPEED;
+            ::g_cameraEye.x -= CAMERA_MOVE_SPEED;
     //        ::g_cameraTarget.x -= CAMERA_SPEED;
         }
         if (key == GLFW_KEY_D)
         {
             // Go right
-            ::g_cameraEye.x += CAMERA_SPEED;
+            ::g_cameraEye.x += CAMERA_MOVE_SPEED;
     //        ::g_cameraTarget.x += CAMERA_SPEED;
         }
 
         if (key == GLFW_KEY_W)
         {
             // Go forward
-            ::g_cameraEye.z -= CAMERA_SPEED;
+            ::g_cameraEye.z -= CAMERA_MOVE_SPEED;
     //        ::g_cameraTarget.x -= CAMERA_SPEED;
         }
         if (key == GLFW_KEY_S)
         {
             // Go back
-            ::g_cameraEye.z += CAMERA_SPEED;
+            ::g_cameraEye.z += CAMERA_MOVE_SPEED;
     //        ::g_cameraTarget.x += CAMERA_SPEED;
         }
 
         if (key == GLFW_KEY_Q)
         {
             // Go down
-            ::g_cameraEye.y -= CAMERA_SPEED;
+            ::g_cameraEye.y -= CAMERA_MOVE_SPEED;
     //        ::g_cameraTarget.x -= CAMERA_SPEED;
         }
         if (key == GLFW_KEY_E)
         {
             // Go up
-            ::g_cameraEye.y += CAMERA_SPEED;
+            ::g_cameraEye.y += CAMERA_MOVE_SPEED;
     //        ::g_cameraTarget.x += CAMERA_SPEED;
         }
     }// if ( ! areAnyModifiersDown(mods) )

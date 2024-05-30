@@ -145,6 +145,7 @@
     <ClCompile Include="cVAOManager\cVAOManager.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="glfw_keyboard_callback_function.cpp" />
+    <ClCompile Include="sharedThings.cpp" />
     <ClCompile Include="theMain.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +155,7 @@
     <ClInclude Include="cShaderManager\cShaderManager.h" />
     <ClInclude Include="cVAOManager\cVAOManager.h" />
     <ClInclude Include="globalOpenGL.h" />
+    <ClInclude Include="sharedThings.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\fragShader01.glsl" />
