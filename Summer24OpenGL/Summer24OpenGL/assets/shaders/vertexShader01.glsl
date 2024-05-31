@@ -23,6 +23,8 @@ out vec4 vertexWorldPosition;
 uniform vec3 colourOverride;			// 1, 0, 0 
 uniform bool bUseOverrideColour;
 
+//uniform vec2 someCoolThing;
+
 void main()
 {
 	// Used to be in the C++ side
