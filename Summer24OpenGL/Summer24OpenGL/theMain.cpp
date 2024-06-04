@@ -462,7 +462,8 @@ void LoadFilesIntoVAOManager(GLuint program)
     }
 
     sModelDrawInfo terrainMesh;
-    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply", terrainMesh, program))
+//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply", terrainMesh, program))
+    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/output.ply", terrainMesh, program))
     {
         std::cout << "loaded: "
             << terrainMesh.meshName << " "
@@ -547,7 +548,8 @@ void LoadModelsIntoScene(void)
 
 
     cMeshObject* pTerrain = new cMeshObject();
-    pTerrain->meshFileName = "assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply";
+    //pTerrain->meshFileName = "assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply";
+    pTerrain->meshFileName = "assets/models/output.ply";
     pTerrain->position.y = -30.0f;
 //    pTerrain->bIsWireFrame = true;
     ::g_MeshesToDraw.push_back(pTerrain);
