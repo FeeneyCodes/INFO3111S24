@@ -153,6 +153,24 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             ::g_pLights->theLights[::g_selectedLightIndex].atten.z *= 1.01f;
         }
 
+        // Inner angle
+        if (key == GLFW_KEY_5) {
+            // Make inner spot light angle less by 0.5%
+            ::g_pLights->theLights[::g_selectedLightIndex].param1.y -= 0.05f;
+        }
+        if (key == GLFW_KEY_6) {
+            ::g_pLights->theLights[::g_selectedLightIndex].param1.y += 0.05f;
+        }
+        // Outer angle
+        if (key == GLFW_KEY_7) {
+            // Make outer spot light angle less by 0.5%
+            ::g_pLights->theLights[::g_selectedLightIndex].param1.z -= 0.05f;
+        }
+        if (key == GLFW_KEY_8) {
+            ::g_pLights->theLights[::g_selectedLightIndex].param1.z += 0.05f;
+        }
+
+
         //if (key == GLFW_KEY_O) 
         //{
         //    // HACK: GOTCHA

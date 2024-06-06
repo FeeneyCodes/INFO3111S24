@@ -31,12 +31,25 @@ public:
 	// uniform vec4 vertexSpecular;		RGB = colour
 	//									W (4th value) = 1 to 1,000,000?
 	glm::vec3 specularHighlightColour;	// RGB colour of the highlight
-	float shinniness;					// How shiny this is
+	float shinniness;					// How shiny this is 1.0, 10, 100, 1000
+	// Called "specular power"
 
 	bool bIsWireFrame;
 	bool bIsVisible;
 
+	// This is some name we can give it
+	std::string friendlyName;
+
 	// For later: child objects
 	std::vector< cMeshObject* > vec_pChildObjects;
+
+	unsigned int getUniqueID(void)
+	{
+		return this->m_uniqueID;
+	}
+private:
+	unsigned int m_uniqueID = 0;
+	// Note that static you can't set the value here
+	static unsigned int m_CurrentID;// = 1000;
 };
 

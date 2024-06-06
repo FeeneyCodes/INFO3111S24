@@ -58,6 +58,20 @@ cMeshObject* g_pSmoothSphere = NULL;
 extern bool g_ShowLightDebugSphereThings;
 
 
+cMeshObject* g_findMeshByFriendlyName( std::string theName )
+{
+    // can also be a regular for loop
+    for ( cMeshObject* pCurMesh : g_MeshesToDraw )
+    {
+        if ( pCurMesh->friendlyName == theName )
+        {
+            return pCurMesh;
+        }
+    }
+    return NULL;    // or nullptr or 0
+}
+
+
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "Error: %s\n", description);
@@ -184,8 +198,6 @@ int main(void)
                                                   222.0f/255.0f, 
                                                   131.0f/255.0f, 
                                                   1.0f);
-    //
-    ::g_pLights->theLights[0].param1.x = 0.0f;  // Point light
     // Turn on
 //    ::g_pLights->theLights[0].turnOn();
     ::g_pLights->theLights[0].param2.x = 1.0f;  // Turn on
@@ -193,6 +205,18 @@ int main(void)
     ::g_pLights->theLights[0].atten.x = 0.0f;   // Constant
     ::g_pLights->theLights[0].atten.y = 0.02f;   // Linear
     ::g_pLights->theLights[0].atten.z = 0.005f;   // Quadratic
+    //
+//    ::g_pLights->theLights[0].param1.x = 0.0f;  // Point light
+    ::g_pLights->theLights[0].param1.x = 1.0f;  // Spot light
+    // 
+    ::g_pLights->theLights[0].direction = glm::vec4(0.0f, -1.0f, 0.0f, 1.0f);
+//   vec4 param1;	// x = lightType, y = inner angle, z = outer angle, w = TBD
+//               // 0 = pointlight
+//               // 1 = spot light
+//               // 2 = directional light
+    ::g_pLights->theLights[0].param1.y = 15.0f;
+    ::g_pLights->theLights[0].param1.z = 25.0f;
+
 
 
        // 
@@ -262,6 +286,24 @@ int main(void)
 
        //mat4x4_mul(mvp, p, m);
 //        mvp = p * v * m;
+
+
+        // aim the spotlight at the cow
+        cMeshObject* pGeorge = ::g_findMeshByFriendlyName("George");
+        if ( pGeorge /* != NULL */ )
+        {
+
+            glm::vec3 lightPosition = glm::vec3(::g_pLights->theLights[0].position);
+
+            glm::vec3 cowPosition = pGeorge->position;
+
+            glm::vec3 ligthToCowVector = cowPosition - lightPosition;
+
+            // Normalizing means divide the ray by it's length
+            glm::vec3 ligthToCowVectorNormalized = glm::normalize(ligthToCowVector);
+
+            ::g_pLights->theLights[0].direction = glm::vec4(ligthToCowVectorNormalized, 1.0f);
+        }
 
 
         // Place light #0 where the sphere is
@@ -350,7 +392,7 @@ int main(void)
                                              ::g_pLights->theLights[::g_selectedLightIndex].atten.z);    // Quad
 
             ::g_pSmoothSphere->scale = distanceAt75Percent;
-            ::g_pSmoothSphere->colourRGB = glm::vec3(0.5f, 0.5f, 0.0f);
+            ::g_pSmoothSphere->colourRGB = glm::vec3(0.25f, 0.25f, 0.0f);
             DrawMesh(::g_pSmoothSphere, program);
 
 
@@ -363,7 +405,7 @@ int main(void)
                                          ::g_pLights->theLights[::g_selectedLightIndex].atten.z);    // Quad
 
             ::g_pSmoothSphere->scale = distanceAt50Percent;
-            ::g_pSmoothSphere->colourRGB = glm::vec3(0.5f, 0.0f, 0.0f);
+            ::g_pSmoothSphere->colourRGB = glm::vec3(0.25f, 0.0f, 0.0f);
             DrawMesh(::g_pSmoothSphere, program);
 
 
@@ -376,7 +418,7 @@ int main(void)
                                              ::g_pLights->theLights[::g_selectedLightIndex].atten.z);    // Quad
 
             ::g_pSmoothSphere->scale = distanceAt25Percent;
-            ::g_pSmoothSphere->colourRGB = glm::vec3(0.0f, 0.5f, 0.0f);
+            ::g_pSmoothSphere->colourRGB = glm::vec3(0.0f, 0.25f, 0.0f);
             DrawMesh(::g_pSmoothSphere, program);
 
 
@@ -391,7 +433,7 @@ int main(void)
                                         ::g_pLights->theLights[::g_selectedLightIndex].atten.z);    // Quad
 
             ::g_pSmoothSphere->scale = distanceAt01Percent;
-            ::g_pSmoothSphere->colourRGB = glm::vec3(0.0f, 0.5f, 0.5f);
+            ::g_pSmoothSphere->colourRGB = glm::vec3(0.0f, 0.25f, 0.5f);
             DrawMesh(::g_pSmoothSphere, program);
 
             glUniform1f(bDoNotLight_UL, (GLint)GL_FALSE);        // Pass 1.0f;
@@ -515,23 +557,23 @@ void LoadFilesIntoVAOManager(GLuint program)
 void LoadModelsIntoScene(void)
 {
     
-    cMeshObject* pFloor = new cMeshObject();
-    pFloor->meshFileName = "assets/models/Dungeon_models/Floors/SM_Env_Dwarf_Floor_07_no_UV.ply";
-    //pFloor->bIsWireFrame = true;
-    pFloor->position.y = -5.0f;
-    pFloor->position.x = 10.0f;
-    pFloor->bOverrideVertexModelColour = true;
-    pFloor->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
-    pFloor->scale = 0.025f;
-    ::g_MeshesToDraw.push_back(pFloor);
+    //cMeshObject* pFloor = new cMeshObject();
+    //pFloor->meshFileName = "assets/models/Dungeon_models/Floors/SM_Env_Dwarf_Floor_07_no_UV.ply";
+    ////pFloor->bIsWireFrame = true;
+    //pFloor->position.y = -5.0f;
+    //pFloor->position.x = 10.0f;
+    //pFloor->bOverrideVertexModelColour = true;
+    //pFloor->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+    //pFloor->scale = 0.025f;
+    //::g_MeshesToDraw.push_back(pFloor);
 
-    cMeshObject* pSkull = new cMeshObject();
-    pSkull->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Item_Skull_01_no_UV.ply";
-    //pSkull->bIsWireFrame = true;
-    pSkull->bOverrideVertexModelColour = true;
-    pSkull->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
-    pSkull->scale = 15.0f;
-    ::g_MeshesToDraw.push_back(pSkull);
+    //cMeshObject* pSkull = new cMeshObject();
+    //pSkull->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Item_Skull_01_no_UV.ply";
+    ////pSkull->bIsWireFrame = true;
+    //pSkull->bOverrideVertexModelColour = true;
+    //pSkull->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+    //pSkull->scale = 15.0f;
+    //::g_MeshesToDraw.push_back(pSkull);
 
 
     ::g_pSmoothSphere = new cMeshObject();
@@ -546,11 +588,12 @@ void LoadModelsIntoScene(void)
 
 
 
-        // Load the models I'd like to draw in the scene
+    // Load the models I'd like to draw in the scene
     cMeshObject* pCow = new cMeshObject();
     pCow->meshFileName = "assets/models/cow_xyz_n_rgba.ply";
     pCow->bIsWireFrame = false;
     pCow->position.x = -10.f;
+    pCow->friendlyName = "George";
     ::g_MeshesToDraw.push_back(pCow);
 
     cMeshObject* pCow2 = new cMeshObject();
@@ -567,8 +610,8 @@ void LoadModelsIntoScene(void)
     cMeshObject* pCar = new cMeshObject();
     pCar->meshFileName = "assets/models/de--lorean_xyz_n_rgba.ply";
     pCar->orientation.x = glm::radians(-90.0f);
-    pCar->position.z = 50.0f;
-    pCar->position.y = -10.0f;
+    //pCar->position.z = 0.0f;
+    //pCar->position.y = 0.0f;
     pCar->scale = 0.5f;
     pCar->shinniness = 1000.0f;  // 1 = 'flat' like dry clay -- to millions
 //    pCar->bIsWireFrame = true;

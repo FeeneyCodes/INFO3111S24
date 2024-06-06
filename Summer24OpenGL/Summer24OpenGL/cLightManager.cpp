@@ -7,9 +7,15 @@ cLight::cLight()
 	this->diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	this->specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	this->atten = glm::vec4(0.0f, 0.01f, 0.01f, 1.0f);
-//	this->direction = glm::vec4( 0.0f, 0.0f, 0.0f
+	// For spot lights
+	this->direction = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	this->param1.x = 0.0f;	// Point light 
+	// If it's a spot light, these will be looked at
+	this->param1.y = 0.0f;	// Inner angle
+	this->param1.z = 0.0f;	// outer angle
+
 	this->param2.x = 0.0f;	// Off 
+	// 
 }
 
 void cLight::setToPointLightType(void)
