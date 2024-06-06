@@ -87,7 +87,8 @@ public:
 						  sModelDrawInfo& drawInfo,
 						  unsigned int shaderProgramID,
 						  bool bModelHasColours,
-						  bool bModelHasNormals);
+						  bool bModelHasNormals,
+						  bool bUseTextureCoords);
 
 	// ...or you could have specific functions to load the files:
 	bool LoadModelIntoVAO_XYZ_ONLY(std::string fileName, 

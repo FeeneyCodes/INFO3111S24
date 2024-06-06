@@ -33,7 +33,7 @@
 extern unsigned int g_selectedLightIndex;
 
 
-glm::vec3 g_cameraEye = glm::vec3(0.0, 0.0, -20.0f);
+glm::vec3 g_cameraEye = glm::vec3(0.0, 12.0f, -39.0f);
 glm::vec3 g_cameraTarget = glm::vec3(0.0, 0.0, 0.0f);
 
 extern unsigned int g_selectedObjectIndex;
@@ -174,7 +174,7 @@ int main(void)
 
 
     // 
-    ::g_pLights->theLights[0].position = glm::vec4(13.0f, 5.0f, 0.0f, 1.0f);
+    ::g_pLights->theLights[0].position = glm::vec4(7.0f, 14.0f, -2.0f, 1.0f);
     // White light (flourescent) light
 //    ::g_pLights->theLights[0].diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -495,11 +495,44 @@ void LoadFilesIntoVAOManager(GLuint program)
             << sphereMeshInverted.numberOfVertices << " vertices" << std::endl;
     }
 
+    sModelDrawInfo skullMesh;
+    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Dead bodies, etc/SM_Item_Skull_01_no_UV.ply", sphereMesh, program))
+    {
+        std::cout << "loaded: "
+            << skullMesh.meshName << " "
+            << skullMesh.numberOfVertices << " vertices" << std::endl;
+    }
+    sModelDrawInfo floorlMesh;
+    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Floors/SM_Env_Dwarf_Floor_07_no_UV.ply", sphereMesh, program))
+    {
+        std::cout << "loaded: "
+            << floorlMesh.meshName << " "
+            << floorlMesh.numberOfVertices << " vertices" << std::endl;
+    }
     return;
 }
 
 void LoadModelsIntoScene(void)
 {
+    
+    cMeshObject* pFloor = new cMeshObject();
+    pFloor->meshFileName = "assets/models/Dungeon_models/Floors/SM_Env_Dwarf_Floor_07_no_UV.ply";
+    //pFloor->bIsWireFrame = true;
+    pFloor->position.y = -5.0f;
+    pFloor->position.x = 10.0f;
+    pFloor->bOverrideVertexModelColour = true;
+    pFloor->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+    pFloor->scale = 0.025f;
+    ::g_MeshesToDraw.push_back(pFloor);
+
+    cMeshObject* pSkull = new cMeshObject();
+    pSkull->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Item_Skull_01_no_UV.ply";
+    //pSkull->bIsWireFrame = true;
+    pSkull->bOverrideVertexModelColour = true;
+    pSkull->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+    pSkull->scale = 15.0f;
+    ::g_MeshesToDraw.push_back(pSkull);
+
 
     ::g_pSmoothSphere = new cMeshObject();
     ::g_pSmoothSphere->meshFileName = "assets/models/Isoshphere_flat_4div_xyz_n_rgba.ply";
@@ -534,7 +567,8 @@ void LoadModelsIntoScene(void)
     cMeshObject* pCar = new cMeshObject();
     pCar->meshFileName = "assets/models/de--lorean_xyz_n_rgba.ply";
     pCar->orientation.x = glm::radians(-90.0f);
-    pCar->position.z = 0.0f;
+    pCar->position.z = 50.0f;
+    pCar->position.y = -10.0f;
     pCar->scale = 0.5f;
     pCar->shinniness = 1000.0f;  // 1 = 'flat' like dry clay -- to millions
 //    pCar->bIsWireFrame = true;
@@ -548,8 +582,8 @@ void LoadModelsIntoScene(void)
 
 
     cMeshObject* pTerrain = new cMeshObject();
-    //pTerrain->meshFileName = "assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply";
-    pTerrain->meshFileName = "assets/models/output.ply";
+    pTerrain->meshFileName = "assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply";
+    //pTerrain->meshFileName = "assets/models/output.ply";
     pTerrain->position.y = -30.0f;
 //    pTerrain->bIsWireFrame = true;
     ::g_MeshesToDraw.push_back(pTerrain);

@@ -38,7 +38,8 @@ void main()
 	vertexWorldPosition = mModel * vec4(vPosition.xyz, 1.0f);
 	
 	// Sent normal to the fragment shader, too
-	vertexNormal = mModel_InverseTranspose * vec4(vNormal.xyz, 1.0f);
+//	vertexNormal = mModel_InverseTranspose * vec4(vNormal.xyz, 1.0f);
+	vertexNormal = normalize(mModel_InverseTranspose * vec4(vNormal.xyz, 1.0f));
 
 	
 	// Like multiplying by 1.0
