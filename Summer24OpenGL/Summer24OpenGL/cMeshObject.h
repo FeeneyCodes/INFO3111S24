@@ -26,6 +26,8 @@ public:
 	// If true, then use the colourRGB
 	bool bOverrideVertexModelColour;
 	glm::vec3 colourRGB;
+	// This is really the 4th parameter being drawn on the framebuffer (screen)
+	float alphaTransparency; 
 
 	// Specular (shininess)
 	// uniform vec4 vertexSpecular;		RGB = colour

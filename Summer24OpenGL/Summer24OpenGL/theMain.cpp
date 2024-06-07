@@ -206,8 +206,8 @@ int main(void)
     ::g_pLights->theLights[0].atten.y = 0.02f;   // Linear
     ::g_pLights->theLights[0].atten.z = 0.005f;   // Quadratic
     //
-//    ::g_pLights->theLights[0].param1.x = 0.0f;  // Point light
-    ::g_pLights->theLights[0].param1.x = 1.0f;  // Spot light
+    ::g_pLights->theLights[0].param1.x = 0.0f;  // Point light
+//    ::g_pLights->theLights[0].param1.x = 1.0f;  // Spot light
     // 
     ::g_pLights->theLights[0].direction = glm::vec4(0.0f, -1.0f, 0.0f, 1.0f);
 //   vec4 param1;	// x = lightType, y = inner angle, z = outer angle, w = TBD
@@ -243,7 +243,6 @@ int main(void)
     ::g_pLights->theLights[2].atten.y = 0.02f;   // Linear
     ::g_pLights->theLights[2].atten.z = 0.005f;   // Quadratic
 
-   
     // Main loop runs forever
     while ( ! glfwWindowShouldClose(window) )
     {
@@ -338,16 +337,59 @@ int main(void)
         // i.e. draw all the things listed in this:
         // std::vector< cMeshObject* > g_MeshesToDraw;
         //
-        for ( unsigned int index = 0; index != ::g_MeshesToDraw.size(); index++ )
+        // NON-transparent thing...
+
+        std::vector<cMeshObject*> vecTransparentThings;
+        std::vector<cMeshObject*> vecSolidThings;
+
+        for ( cMeshObject* pCurMesh : ::g_MeshesToDraw )
+        {
+            if (pCurMesh->alphaTransparency < 1.0f )
+            {
+                vecTransparentThings.push_back(pCurMesh);
+            }
+            else
+            {
+                vecSolidThings.push_back(pCurMesh);
+            }
+        }
+
+        // Sort the transparent things far to near
+
+        // Vector of 100 to 1000 thigns
+        // Faster search...?
+        // LINEAR search
+
+//        Pentium 586 --> Quake 3
+//        CPU SPEED : Intel 266 MHz / AMD 350 MHz.
+//        RAM : 64 MB.
+
+
+        //vectro
+        //list
+        //hash map
+        //map (red-black tree)
+
+
+        for ( unsigned int index = 0; index != vecSolidThings.size(); index++ )
         {
 
-            cMeshObject* pCurrentMesh = ::g_MeshesToDraw[index];
+            cMeshObject* pCurrentMesh = vecSolidThings[index];
 
 
             DrawMesh(pCurrentMesh, program);
 
         }//for ( unsigned int index 
 
+        for ( unsigned int index = 0; index != vecTransparentThings.size(); index++ )
+        {
+
+            cMeshObject* pCurrentMesh = vecTransparentThings[index];
+
+
+            DrawMesh(pCurrentMesh, program);
+
+        }//for ( unsigned int index 
 
 //        DrawMesh(::g_pSmoothSphere, program);
 // 
@@ -588,20 +630,12 @@ void LoadModelsIntoScene(void)
 
 
 
-    // Load the models I'd like to draw in the scene
-    cMeshObject* pCow = new cMeshObject();
-    pCow->meshFileName = "assets/models/cow_xyz_n_rgba.ply";
-    pCow->bIsWireFrame = false;
-    pCow->position.x = -10.f;
-    pCow->friendlyName = "George";
-    ::g_MeshesToDraw.push_back(pCow);
-
     cMeshObject* pCow2 = new cMeshObject();
     pCow2->meshFileName = "assets/models/cow_xyz_n_rgba.ply";
 //    pCow2->bIsWireFrame = false;
     pCow2->position.x = +10.0f;
     pCow2->scale = 0.5f;
-    pCow->orientation.z = glm::radians(-45.0f);
+    pCow2->orientation.z = glm::radians(-45.0f);
     pCow2->bOverrideVertexModelColour = true;
     pCow2->colourRGB = glm::vec3(0.0f, 1.0f, 0.0f);
     ::g_MeshesToDraw.push_back(pCow2);
@@ -616,6 +650,7 @@ void LoadModelsIntoScene(void)
     pCar->shinniness = 1000.0f;  // 1 = 'flat' like dry clay -- to millions
 //    pCar->bIsWireFrame = true;
     pCar->bIsVisible = true;
+    pCar->alphaTransparency = 0.5f;
     ::g_MeshesToDraw.push_back(pCar);
 
     //cMeshObject* pDolphin = new cMeshObject();
@@ -641,6 +676,17 @@ void LoadModelsIntoScene(void)
     // rgb(68, 109, 122)
     pWarehouse->colourRGB = glm::vec3(68.0f / 255.0f, 109.0f / 255.0f, 122.0f / 255.0f);
     ::g_MeshesToDraw.push_back(pWarehouse);
+
+   // Load the models I'd like to draw in the scene
+    cMeshObject* pCow = new cMeshObject();
+    pCow->meshFileName = "assets/models/cow_xyz_n_rgba.ply";
+    pCow->bIsWireFrame = false;
+    pCow->position.x = -10.f;
+    pCow->friendlyName = "George";
+    pCow->alphaTransparency = 0.65f;
+    ::g_MeshesToDraw.push_back(pCow);
+
+
 
     return;
 }
@@ -777,6 +823,21 @@ void DrawMesh(cMeshObject* pCurrentMesh, GLuint shaderProgram)
                 pCurrentMesh->shinniness);
 
 
+
+    // Alpha transparency
+    // We can enable or disable this any time (no performance hit)
+    glEnable(GL_BLEND);
+    // Takes some number form the 1st param
+    // ...does something based on 2nd param
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Set the transparency in the shader
+    // uniform float alphaTransparency;
+
+    GLint alphaTransparency_UL = glGetUniformLocation(shaderProgram, "alphaTransparency");
+    // Use the transparency from the mesh
+    glUniform1f(alphaTransparency_UL, pCurrentMesh->alphaTransparency);
+ 
 
 
     sModelDrawInfo modelInfo;

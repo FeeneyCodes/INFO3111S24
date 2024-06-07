@@ -10,9 +10,12 @@ in vec4 vertexWorldPosition;
 // Now shiny the model is
 uniform vec4 vertexSpecular; //= vec4(1.0f, 1.0f, 1.0f, 100.0f);
 
+// This is how transparent the whole object is 
+// Ranges from 0.0 to 1.0   (completely invisible to 'solid')
+uniform float alphaTransparency;
 
 // output to the screen
-out vec4 pixelColour;
+out vec4 pixelColour;		// RGB, 4th value is "A" (alpha)
 
 struct sLight
 {
@@ -78,6 +81,10 @@ void main()
 	                                           vertexSpecular );
 											   
 	pixelColour.rgb = lightContrib.rgb;
+	
+	
+//	pixelColour.a = 0.5f;
+	pixelColour.a = alphaTransparency;
 	
 //	vec3 ambientLightColour = vec3(0.1f, 0.1f, 0.1f);
 //	pixelColour.rgb += ambientLightColour.rgb;
