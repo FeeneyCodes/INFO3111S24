@@ -4,6 +4,7 @@
 
 #include <fstream>
 
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
@@ -111,7 +112,8 @@ bool cVAOManager::LoadModelIntoVAO(
 	glBufferData( GL_ARRAY_BUFFER, 
 //				  sizeof(sVert) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
 //				  sizeof(sVert_xyzw_RGBA) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
-				  sizeof(sVert_xyzw_n_RGBA) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
+//				  sizeof(sVert_xyzw_n_RGBA) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
+				  sizeof(sVert_xyzw_n_RGBA_uv) * drawInfo.numberOfVertices,	// ::g_NumberOfVertsToDraw,	// sizeof(vertices), 
 				  (GLvoid*) drawInfo.pVertices,							// pVertices,			//vertices, 
 				  GL_STATIC_DRAW );
 
@@ -132,7 +134,9 @@ bool cVAOManager::LoadModelIntoVAO(
 	GLint vpos_location = glGetAttribLocation(shaderProgramID, "vPosition");	// program
 	GLint vcol_location = glGetAttribLocation(shaderProgramID, "vColour");		// program;
 	// Normals, too
-	GLint vnorm_location = glGetAttribLocation(shaderProgramID, "vNormal");
+	GLint vnorm_location = glGetAttribLocation(shaderProgramID, "vNormal");	
+	// Texture coordinates, too			// in vec2 vUV;
+	GLint vUV_location = glGetAttribLocation(shaderProgramID, "vUV");
 
 	// Set the vertex attributes for this shader
 	glEnableVertexAttribArray(vpos_location);	// vPosition
@@ -142,8 +146,8 @@ bool cVAOManager::LoadModelIntoVAO(
 	//					  (void*)offsetof(sVert_xyzw_RGBA, x));   //(void*)0);				// Offset
 	glVertexAttribPointer(vpos_location, 4,	// vPosition
 						  GL_FLOAT, GL_FALSE,
-						  sizeof(sVert_xyzw_n_RGBA),			// sizeof(float) * 32,		// Stride
-						  (void*)offsetof(sVert_xyzw_n_RGBA, x));   //(void*)0);				// Offset
+						  sizeof(sVert_xyzw_n_RGBA_uv),			// sizeof(float) * 32,		// Stride
+						  (void*)offsetof(sVert_xyzw_n_RGBA_uv, x));   //(void*)0);				// Offset
 
 	glEnableVertexAttribArray(vcol_location);	// vColour
 	//glVertexAttribPointer( vcol_location, 4,	// vColour
@@ -152,15 +156,25 @@ bool cVAOManager::LoadModelIntoVAO(
 	//					   (void*)offsetof(sVert_xyzw_RGBA, r));		// ( void* )( sizeof(float) * 4 ));
 	glVertexAttribPointer( vcol_location, 4,	// vColour
 						   GL_FLOAT, GL_FALSE,
-						   sizeof(sVert_xyzw_n_RGBA),		// sizeof(float) * 6,
-						   (void*)offsetof(sVert_xyzw_n_RGBA, r));		// ( void* )( sizeof(float) * 4 ));
+						   sizeof(sVert_xyzw_n_RGBA_uv),		// sizeof(float) * 6,
+						   (void*)offsetof(sVert_xyzw_n_RGBA_uv, r));		// ( void* )( sizeof(float) * 4 ));
 
 	// Also the normals...
 	glEnableVertexAttribArray(vnorm_location);	// vNormal
-	glVertexAttribPointer(vnorm_location, 4,	// vNormal
+	glVertexAttribPointer(vnorm_location, 4,	// vUV
 						   GL_FLOAT, GL_FALSE,
-						   sizeof(sVert_xyzw_n_RGBA),		
-						   (void*)offsetof(sVert_xyzw_n_RGBA, nx));		
+						   sizeof(sVert_xyzw_n_RGBA_uv),
+						   (void*)offsetof(sVert_xyzw_n_RGBA_uv, nx));
+
+
+	// Texture coordinates, too			// in vec2 vUV;
+	//GLint vUV_location = glGetAttribLocation(shaderProgramID, "vUV");
+	glEnableVertexAttribArray(vUV_location);	// vUV
+	glVertexAttribPointer(vUV_location, 2,	// vUV
+						   GL_FLOAT, GL_FALSE,
+						   sizeof(sVert_xyzw_n_RGBA_uv),
+						   (void*)offsetof(sVert_xyzw_n_RGBA_uv, u));
+
 
 
 	// Now that all the parts are set up, set the VAO to zero
@@ -172,6 +186,7 @@ bool cVAOManager::LoadModelIntoVAO(
 	glDisableVertexAttribArray(vpos_location);
 	glDisableVertexAttribArray(vcol_location);
 	glDisableVertexAttribArray(vnorm_location);
+	glDisableVertexAttribArray(vUV_location);	
 
 
 	// Store the draw information into the map
@@ -262,6 +277,8 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 		// Vertex normals
 		glm::vec3 normal;
 		glm::vec4 colour;
+		// 
+		glm::vec2 texture_UV;
 	};
 
 	std::vector<sVertPly> vecTempPlyVerts;
@@ -320,8 +337,12 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 
 		// property float texture_u
 		// property float texture_v
-		float discard = 0.0f;
-		thePlyFile >> discard >> discard;
+//		float discard = 0.0f;
+//		thePlyFile >> discard >> discard;
+		thePlyFile
+			>> tempVert.texture_UV.x
+			>> tempVert.texture_UV.y;
+			
 
 		// Add too... what? 
 		vecTempPlyVerts.push_back(tempVert);
@@ -334,7 +355,8 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 
 //	drawInfo.pVertices = new sVert[drawInfo.numberOfVertices];
 //	drawInfo.pVertices = new sVert_xyzw_RGBA[drawInfo.numberOfVertices];
-	drawInfo.pVertices = new sVert_xyzw_n_RGBA[drawInfo.numberOfVertices];
+//	drawInfo.pVertices = new sVert_xyzw_n_RGBA[drawInfo.numberOfVertices];
+	drawInfo.pVertices = new sVert_xyzw_n_RGBA_uv[drawInfo.numberOfVertices];
 
 	// Optional clear array to zero 
 	//memset( drawInfo.pVertices, 0, sizeof(sVert) * drawInfo.numberOfVertices);
@@ -357,6 +379,10 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 		drawInfo.pVertices[index].ny = vecTempPlyVerts[index].normal.y;
 		drawInfo.pVertices[index].nz = vecTempPlyVerts[index].normal.z;
 		drawInfo.pVertices[index].nw = 1.0f;	// If in doubt, set 4th to 1
+
+		// Also texture coordinates
+		drawInfo.pVertices[index].u = vecTempPlyVerts[index].texture_UV.x;
+		drawInfo.pVertices[index].v = vecTempPlyVerts[index].texture_UV.y;
 
 
 	}// for ( unsigned int index...

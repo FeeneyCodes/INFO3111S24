@@ -6,6 +6,7 @@
 in vec4 vertexColour;
 in vec4 vertexNormal;
 in vec4 vertexWorldPosition;
+in vec2 vertexUV;	// Texture coord
 
 // Now shiny the model is
 uniform vec4 vertexSpecular; //= vec4(1.0f, 1.0f, 1.0f, 100.0f);
@@ -63,6 +64,11 @@ void main()
 	
 //	pixelColour = vec4( color, 1.0f );
 	pixelColour = vertexColour;
+	
+	// 
+	pixelColour.rgb *= 0.0001f;	// Goes black
+	pixelColour.r += vertexUV.s;		// u or x
+	pixelColour.g += vertexUV.t;		// v or y
 	
 	if ( bDoNotLight )
 	{

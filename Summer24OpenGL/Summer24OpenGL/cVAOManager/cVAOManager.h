@@ -36,13 +36,32 @@
 //property uchar green
 //property uchar blue
 //property uchar alpha
-struct sVert_xyzw_n_RGBA
+//struct sVert_xyzw_n_RGBA
+//{
+//	float x, y, z, w;		//  position (ignoring the w)
+//	float nx, ny, nz, nw;	//	normal (ignoring the w)
+//	float r, g, b, a;
+//};
+
+//	property float x
+//	property float y
+//	property float z
+//	property float nx
+//	property float ny
+//	property float nz
+//	property uchar red
+//	property uchar green
+//	property uchar blue
+//	property uchar alpha
+//	property float texture_u
+//	property float texture_v		***
+struct sVert_xyzw_n_RGBA_uv
 {
 	float x, y, z, w;		//  position (ignoring the w)
 	float nx, ny, nz, nw;	//	normal (ignoring the w)
 	float r, g, b, a;
+	float u, v;				// Texture coords
 };
-
 
 // This represents a single mesh (3D object) structure in 'indexed' format. 
 // Its layout is set up to match how the GPU sees the mesh, rather
@@ -68,7 +87,8 @@ struct sModelDrawInfo
 
 	// The "local" (i.e. "CPU side" temporary array)
 //	sVert_xyzw_RGBA* pVertices;	//  = 0;
-	sVert_xyzw_n_RGBA* pVertices;	//  = 0;
+//	sVert_xyzw_n_RGBA* pVertices;	//  = 0;
+	sVert_xyzw_n_RGBA_uv* pVertices;
 	// The index buffer (CPU side)
 	unsigned int* pIndices;
 };

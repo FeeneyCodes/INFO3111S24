@@ -11,6 +11,7 @@ uniform mat4 mModel_InverseTranspose;
 in vec4 vColour;			// RGB, A (alpha = transparency)
 in vec4 vPosition;			// XYZ (ignore the 4th value, which is W)
 in vec4 vNormal;
+in vec2 vUV;
 
 //out vec4 color;
 //out vec4 vertNormal;
@@ -18,7 +19,7 @@ in vec4 vNormal;
 out vec4 vertexColour;
 out vec4 vertexNormal;
 out vec4 vertexWorldPosition;
-//out vec4 vertexUVx2;
+out vec2 vertexUV;
 
 uniform vec3 colourOverride;			// 1, 0, 0 
 uniform bool bUseOverrideColour;
@@ -55,5 +56,6 @@ void main()
 		// Take it from the file colour (per vertex)
 		vertexColour = vColour;
 	}
-	
+	// Copy the UV (texture) coords
+	vertexUV = vUV;
 }
