@@ -26,6 +26,8 @@
 #include "cLightManager.h"
 #include "cLightHelper/cLightHelper.h"
 
+#include "cBasicTextureManager/cBasicTextureManager.h"
+
 #include <vector>
 #include "cMeshObject.h"
 
@@ -50,6 +52,8 @@ cShaderManager* g_pTheShaderManager = NULL;     // Actual thing is on the HEAP
 //cShaderManager TheShaderManager;                // Stack
 
 cVAOManager* g_pMeshManager = NULL;
+
+cBasicTextureManager* g_TextureManager = NULL;
 
 cLightManager* g_pLights = NULL;
 
@@ -169,6 +173,24 @@ int main(void)
 
     // Here's the things we'd like to 'show' in our 'scene
     LoadModelsIntoScene();
+
+    ::g_TextureManager = new cBasicTextureManager();
+
+    ::g_TextureManager->SetBasePath("assets/textures");
+    if ( ::g_TextureManager->Create2DTextureFromBMPFile("beyonce.bmp", true) )
+    {
+        std::cout << "Loaded beyonce.bmp OK" << std::endl;
+    }
+    //if ( ::g_TextureManager->Create2DTextureFromBMPFile("Dungeons_2_Texture_01_A.png", true) )
+    //{
+    //    std::cout << "Dungeons_2_Texture_01_A.png OK" << std::endl;
+    //}
+    if ( ::g_TextureManager->Create2DTextureFromBMPFile("Dungeons_2_Texture_01_A.bmp", true) )
+    {
+        std::cout << "Dungeons_2_Texture_01_A.bmp OK" << std::endl;
+    } 
+
+//    ::g_TextureManager->getTextureIDFromName("beyonce.bmp");
 
 
 
@@ -624,12 +646,23 @@ void LoadModelsIntoScene(void)
 {
     cMeshObject* pDwarf = new cMeshObject();
     pDwarf->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Dwarf_01.ply";
-    pDwarf->bIsWireFrame = true;
-    pDwarf->bOverrideVertexModelColour = true;
-    pDwarf->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
-    pDwarf->bDoNotLight = true;
+    pDwarf->scale = 0.1f;
+//    pDwarf->bDoNotLight = true;
+    pDwarf->position.z = 10.0f;
+    pDwarf->position.y = -10.0f;
+    pDwarf->texture00Name = "Dungeons_2_Texture_01_A.bmp";
     ::g_MeshesToDraw.push_back(pDwarf);
 
+    cMeshObject* pDwarf2 = new cMeshObject();
+    pDwarf2->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Dwarf_01.ply";
+    pDwarf2->scale = 0.1f;
+//    pDwarf2->bDoNotLight = true;
+    pDwarf2->position.z = 10.0f;
+    pDwarf2->position.x = 15.0f;
+    pDwarf2->position.y = -10.0f;
+    pDwarf2->texture00Name = "beyonce.bmp";
+    ::g_MeshesToDraw.push_back(pDwarf2);   
+    
     // 
     // 
     //cMeshObject* pFloor = new cMeshObject();
@@ -899,6 +932,27 @@ void DrawMesh(cMeshObject* pCurrentMesh, GLuint shaderProgram)
     }
 
 
+    // Set up the last step in the texture.
+    // Connect the texture in the GPU with the sampler in the shader
+    // 
+
+
+//
+    // GLuint getTextureIDFromName( std::string textureFileName );
+//    GLuint dungeonTextID = ::g_TextureManager->getTextureIDFromName("Dungeons_2_Texture_01_A.bmp");
+    GLuint dungeonTextID = ::g_TextureManager->getTextureIDFromName( pCurrentMesh->texture00Name );
+
+    // Texture binding...
+    GLuint texture21Unit = 21;			// Texture unit go from 0 to 79
+    glActiveTexture(GL_TEXTURE0 + texture21Unit);	// GL_TEXTURE0 = 33984
+    glBindTexture(GL_TEXTURE_2D, dungeonTextID);
+
+    // uniform sampler2D texture01;
+    GLint texture01_UL =  glGetUniformLocation(shaderProgram, "texture01");
+    // Set texture unit in the shader, too
+    glUniform1i(texture01_UL, texture21Unit);
+//
+//    glBindTextureUnit( 21, dungeonTextID );	// OpenGL 4.5+ only
 
 
     sModelDrawInfo modelInfo;

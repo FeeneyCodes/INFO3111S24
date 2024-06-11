@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <vector>
+#include <string>
 
 
 // This represents a thing we are drawing on the screen.
@@ -40,6 +41,10 @@ public:
 	bool bIsVisible;
 
 	bool bDoNotLight;
+
+	// We'll have 8 textures eventually
+	std::string texture00Name;
+
 
 	// This is some name we can give it
 	std::string friendlyName;

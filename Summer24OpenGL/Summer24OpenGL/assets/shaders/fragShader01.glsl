@@ -54,6 +54,9 @@ uniform bool bDoNotLight;
 //uniform vec3 ambientLightColour;
 
 
+// Texture stuff
+uniform sampler2D texture01;
+
 
 vec4 calcualteLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal, 
                             vec3 vertexWorldPos, vec4 vertexSpecular );
@@ -67,12 +70,18 @@ void main()
 	
 	// 
 	pixelColour.rgb *= 0.0001f;	// Goes black
-	pixelColour.r += vertexUV.s;		// u or x
-	pixelColour.g += vertexUV.t;		// v or y
+//	pixelColour.r += vertexUV.s;		// u or x
+//	pixelColour.g += vertexUV.t;		// v or y
+	
+	// Get colour from the texture
+	vec3 texColorRGB = texture(texture01, vertexUV.st).rgb;
+	
+	pixelColour.rgb += texColorRGB.rgb;
 	
 	if ( bDoNotLight )
 	{
 		// Early exit. don't do light calculation
+		pixelColour.a = alphaTransparency;
 		return;
 	}
 	
