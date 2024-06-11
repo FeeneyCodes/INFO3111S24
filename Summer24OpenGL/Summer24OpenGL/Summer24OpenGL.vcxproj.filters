@@ -57,6 +57,9 @@
     <ClCompile Include="sharedThings.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="mouse_keyboard_async.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cShaderManager\cShaderManager.h">

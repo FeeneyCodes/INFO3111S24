@@ -39,6 +39,8 @@ public:
 	bool bIsWireFrame;
 	bool bIsVisible;
 
+	bool bDoNotLight;
+
 	// This is some name we can give it
 	std::string friendlyName;
 

@@ -1,7 +1,7 @@
 ply
 format ascii 1.0
 comment VCGLIB generated
-comment TextureFile Dungeons_2_Texture_01_A.png
+comment TextureFile Dungeons_2_Texture_01_A
 element vertex 9510
 property float x
 property float y

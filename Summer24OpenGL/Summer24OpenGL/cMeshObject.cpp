@@ -10,6 +10,8 @@ cMeshObject::cMeshObject()
 
 	this->alphaTransparency = 1.0f;
 
+	this->bDoNotLight = false;
+
 
 	this->bIsWireFrame = false;	// true;
 	this->bIsVisible = true;

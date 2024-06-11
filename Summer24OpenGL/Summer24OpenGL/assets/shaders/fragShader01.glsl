@@ -47,6 +47,7 @@ uniform sLight theLights[NUMBEROFLIGHTS];
 uniform vec3 eyeLocation;
 
 // If true, then we DON'T calcualte the light contrib
+// bool is really a float
 uniform bool bDoNotLight;
 
 //uniform vec3 ambientLightColour;
@@ -83,8 +84,8 @@ void main()
 	pixelColour.rgb = lightContrib.rgb;
 	
 	
-//	pixelColour.a = 0.5f;
-	pixelColour.a = alphaTransparency;
+	pixelColour.a = 0.5f;
+//	pixelColour.a = alphaTransparency;
 	
 //	vec3 ambientLightColour = vec3(0.1f, 0.1f, 0.1f);
 //	pixelColour.rgb += ambientLightColour.rgb;

@@ -318,6 +318,11 @@ bool cVAOManager::m_LoadTheModel(std::string fileName,
 		tempVert.colour.y /= 255.0f;
 		tempVert.colour.z /= 255.0f;
 
+		// property float texture_u
+		// property float texture_v
+		float discard = 0.0f;
+		thePlyFile >> discard >> discard;
+
 		// Add too... what? 
 		vecTempPlyVerts.push_back(tempVert);
 	}

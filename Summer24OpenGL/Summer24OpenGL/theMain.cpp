@@ -19,6 +19,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
 #include "cShaderManager/cShaderManager.h"
 #include "cVAOManager/cVAOManager.h"
@@ -56,6 +57,8 @@ cLightManager* g_pLights = NULL;
 cMeshObject* g_pSmoothSphere = NULL;
 
 extern bool g_ShowLightDebugSphereThings;
+
+void handleKeyboardAsync(GLFWwindow* window);
 
 
 cMeshObject* g_findMeshByFriendlyName( std::string theName )
@@ -365,6 +368,13 @@ int main(void)
 //        RAM : 64 MB.
 
 
+        // 100 object at 4GHz
+        // 4,000,000,000 per second @ 60Hz
+        //    40,000,000 per frame
+        // 10,000 until they are in order
+        //    4,000x per frame
+
+
         //vectro
         //list
         //hash map
@@ -509,6 +519,10 @@ int main(void)
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        //
+        handleKeyboardAsync(window);
+
     }
 
 
@@ -519,86 +533,105 @@ int main(void)
 
 void LoadFilesIntoVAOManager(GLuint program)
 {
-    sModelDrawInfo meshInfoCow;
-    if (!::g_pMeshManager->LoadModelIntoVAO("assets/models/cow_xyz_n_rgba.ply", meshInfoCow, program))
-    {
-        std::cout << "ERROR: Didn't load the cow" << std::endl;
-    }
+//    sModelDrawInfo meshInfoCow;
+//    if (!::g_pMeshManager->LoadModelIntoVAO("assets/models/cow_xyz_n_rgba.ply", meshInfoCow, program))
+//    {
+//        std::cout << "ERROR: Didn't load the cow" << std::endl;
+//    }
+//
+//    sModelDrawInfo carMeshInfo;
+//    if (!::g_pMeshManager->LoadModelIntoVAO("assets/models/de--lorean_xyz_n_rgba.ply", carMeshInfo, program))
+//    {
+//        std::cout << "ERROR: Didn't load the cow" << std::endl;
+//    }
+//
+//    sModelDrawInfo teapotMeshInfo;
+//    if (!::g_pMeshManager->LoadModelIntoVAO("assets/models/Utah_Teapot_xyz_rgba.ply", teapotMeshInfo, program))
+//    {
+//        std::cout << "ERROR: Didn't load the cow" << std::endl;
+//    }
+//
+//    sModelDrawInfo dolphinMesh;
+//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/dolphin_xyz_n_rgba.ply", dolphinMesh, program))
+//    {
+//        std::cout << "loaded: "
+//            << dolphinMesh.meshName << " "
+//            << dolphinMesh.numberOfVertices << " vertices" << std::endl;
+//    }
+//
+//    sModelDrawInfo terrainMesh;
+////    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply", terrainMesh, program))
+//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/output.ply", terrainMesh, program))
+//    {
+//        std::cout << "loaded: "
+//            << terrainMesh.meshName << " "
+//            << terrainMesh.numberOfVertices << " vertices" << std::endl;
+//    }
+//
+//
+//    sModelDrawInfo wearhouseMesh;
+//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Warehouse_xyz_n_rgba.ply", wearhouseMesh, program))
+//    {
+//        std::cout << "loaded: "
+//            << wearhouseMesh.meshName << " "
+//            << wearhouseMesh.numberOfVertices << " vertices" << std::endl;
+//    }
+//
+//    sModelDrawInfo sphereMesh;
+//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Isoshphere_flat_4div_xyz_n_rgba.ply", sphereMesh, program))
+//    {
+//        std::cout << "loaded: "
+//            << sphereMesh.meshName << " "
+//            << sphereMesh.numberOfVertices << " vertices" << std::endl;
+//    }
+//
+//    sModelDrawInfo sphereMeshInverted;
+//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Isoshphere_smooth_inverted_normals_xyz_n_rgba.ply", sphereMesh, program))
+//    {
+//        std::cout << "loaded: "
+//            << sphereMeshInverted.meshName << " "
+//            << sphereMeshInverted.numberOfVertices << " vertices" << std::endl;
+//    }
+//
+//    sModelDrawInfo skullMesh;
+//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Dead bodies, etc/SM_Item_Skull_01_no_UV.ply", sphereMesh, program))
+//    {
+//        std::cout << "loaded: "
+//            << skullMesh.meshName << " "
+//            << skullMesh.numberOfVertices << " vertices" << std::endl;
+//    }
+//    sModelDrawInfo floorlMesh;
+//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Floors/SM_Env_Dwarf_Floor_07_no_UV.ply", sphereMesh, program))
+//    {
+//        std::cout << "loaded: "
+//            << floorlMesh.meshName << " "
+//            << floorlMesh.numberOfVertices << " vertices" << std::endl;
+//    }
 
-    sModelDrawInfo carMeshInfo;
-    if (!::g_pMeshManager->LoadModelIntoVAO("assets/models/de--lorean_xyz_n_rgba.ply", carMeshInfo, program))
-    {
-        std::cout << "ERROR: Didn't load the cow" << std::endl;
-    }
 
-    sModelDrawInfo teapotMeshInfo;
-    if (!::g_pMeshManager->LoadModelIntoVAO("assets/models/Utah_Teapot_xyz_rgba.ply", teapotMeshInfo, program))
-    {
-        std::cout << "ERROR: Didn't load the cow" << std::endl;
-    }
-
-    sModelDrawInfo dolphinMesh;
-    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/dolphin_xyz_n_rgba.ply", dolphinMesh, program))
+    sModelDrawInfo DwarfMesh;
+    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Dwarf_01.ply", DwarfMesh, program))
     {
         std::cout << "loaded: "
-            << dolphinMesh.meshName << " "
-            << dolphinMesh.numberOfVertices << " vertices" << std::endl;
+            << DwarfMesh.meshName << " "
+            << DwarfMesh.numberOfVertices << " vertices" << std::endl;
     }
 
-    sModelDrawInfo terrainMesh;
-//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply", terrainMesh, program))
-    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/output.ply", terrainMesh, program))
-    {
-        std::cout << "loaded: "
-            << terrainMesh.meshName << " "
-            << terrainMesh.numberOfVertices << " vertices" << std::endl;
-    }
-
-
-    sModelDrawInfo wearhouseMesh;
-    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Warehouse_xyz_n_rgba.ply", wearhouseMesh, program))
-    {
-        std::cout << "loaded: "
-            << wearhouseMesh.meshName << " "
-            << wearhouseMesh.numberOfVertices << " vertices" << std::endl;
-    }
-
-    sModelDrawInfo sphereMesh;
-    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Isoshphere_flat_4div_xyz_n_rgba.ply", sphereMesh, program))
-    {
-        std::cout << "loaded: "
-            << sphereMesh.meshName << " "
-            << sphereMesh.numberOfVertices << " vertices" << std::endl;
-    }
-
-    sModelDrawInfo sphereMeshInverted;
-    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Isoshphere_smooth_inverted_normals_xyz_n_rgba.ply", sphereMesh, program))
-    {
-        std::cout << "loaded: "
-            << sphereMeshInverted.meshName << " "
-            << sphereMeshInverted.numberOfVertices << " vertices" << std::endl;
-    }
-
-    sModelDrawInfo skullMesh;
-    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Dead bodies, etc/SM_Item_Skull_01_no_UV.ply", sphereMesh, program))
-    {
-        std::cout << "loaded: "
-            << skullMesh.meshName << " "
-            << skullMesh.numberOfVertices << " vertices" << std::endl;
-    }
-    sModelDrawInfo floorlMesh;
-    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Floors/SM_Env_Dwarf_Floor_07_no_UV.ply", sphereMesh, program))
-    {
-        std::cout << "loaded: "
-            << floorlMesh.meshName << " "
-            << floorlMesh.numberOfVertices << " vertices" << std::endl;
-    }
     return;
 }
 
 void LoadModelsIntoScene(void)
 {
-    
+    cMeshObject* pDwarf = new cMeshObject();
+    pDwarf->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Dwarf_01.ply";
+    pDwarf->bIsWireFrame = true;
+    pDwarf->bOverrideVertexModelColour = true;
+    pDwarf->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+    pDwarf->bDoNotLight = true;
+    ::g_MeshesToDraw.push_back(pDwarf);
+
+    // 
+    // 
     //cMeshObject* pFloor = new cMeshObject();
     //pFloor->meshFileName = "assets/models/Dungeon_models/Floors/SM_Env_Dwarf_Floor_07_no_UV.ply";
     ////pFloor->bIsWireFrame = true;
@@ -823,21 +856,49 @@ void DrawMesh(cMeshObject* pCurrentMesh, GLuint shaderProgram)
                 pCurrentMesh->shinniness);
 
 
+    if (pCurrentMesh->alphaTransparency < 1.0f )
+    {
+        // it's transparent
 
-    // Alpha transparency
-    // We can enable or disable this any time (no performance hit)
-    glEnable(GL_BLEND);
-    // Takes some number form the 1st param
-    // ...does something based on 2nd param
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // Alpha transparency
+        // We can enable or disable this any time (no performance hit)
+        glEnable(GL_BLEND);
+        // Takes some number form the 1st param
+        // ...does something based on 2nd param
+        // NOTE: This only needs to be set once
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Set the transparency in the shader
-    // uniform float alphaTransparency;
+        // Set the transparency in the shader
+        // uniform float alphaTransparency;
 
-    GLint alphaTransparency_UL = glGetUniformLocation(shaderProgram, "alphaTransparency");
-    // Use the transparency from the mesh
-    glUniform1f(alphaTransparency_UL, pCurrentMesh->alphaTransparency);
- 
+        GLint alphaTransparency_UL = glGetUniformLocation(shaderProgram, "alphaTransparency");
+        // Use the transparency from the mesh
+        glUniform1f(alphaTransparency_UL, pCurrentMesh->alphaTransparency);
+    }
+    else
+    {
+        // it's solid
+        glDisable(GL_BLEND);
+    }
+
+
+    // Turn off lighting?
+    // uniform bool bDoNotLight
+    GLint bDoNotLight_UL = glGetUniformLocation(shaderProgram, "bDoNotLight");
+
+    if ( pCurrentMesh->bDoNotLight )
+    {
+//        glUniform1f(bDoNotLight_UL, 1.0f);
+        glUniform1f(bDoNotLight_UL, (GLfloat)GL_TRUE);
+    }
+    else
+    {
+//        glUniform1f(bDoNotLight_UL, 0.0f);
+        glUniform1f(bDoNotLight_UL, (GLfloat)GL_FALSE);
+
+    }
+
+
 
 
     sModelDrawInfo modelInfo;

@@ -80,6 +80,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 
 
+    // BYPASS THE REST
+    return;
+
     const float OBJECT_MOVE_SPEED = 0.5f;
     const float LIGHT_MOVE_SPEED = 0.5f;
     const float CAMERA_MOVE_SPEED = 1.0f;
@@ -348,48 +351,48 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 
     // Are all modifiers up?
-    if ( ! areAnyModifiersDown(mods) )
-    {
-
-        // Move the camera 
-        if (key == GLFW_KEY_A)
-        {
-            // Go left
-            ::g_cameraEye.x -= CAMERA_MOVE_SPEED;
-    //        ::g_cameraTarget.x -= CAMERA_SPEED;
-        }
-        if (key == GLFW_KEY_D)
-        {
-            // Go right
-            ::g_cameraEye.x += CAMERA_MOVE_SPEED;
-    //        ::g_cameraTarget.x += CAMERA_SPEED;
-        }
-
-        if (key == GLFW_KEY_W)
-        {
-            // Go forward
-            ::g_cameraEye.z -= CAMERA_MOVE_SPEED;
-    //        ::g_cameraTarget.x -= CAMERA_SPEED;
-        }
-        if (key == GLFW_KEY_S)
-        {
-            // Go back
-            ::g_cameraEye.z += CAMERA_MOVE_SPEED;
-    //        ::g_cameraTarget.x += CAMERA_SPEED;
-        }
-
-        if (key == GLFW_KEY_Q)
-        {
-            // Go down
-            ::g_cameraEye.y -= CAMERA_MOVE_SPEED;
-    //        ::g_cameraTarget.x -= CAMERA_SPEED;
-        }
-        if (key == GLFW_KEY_E)
-        {
-            // Go up
-            ::g_cameraEye.y += CAMERA_MOVE_SPEED;
-    //        ::g_cameraTarget.x += CAMERA_SPEED;
-        }
-    }// if ( ! areAnyModifiersDown(mods) )
+//   if ( ! areAnyModifiersDown(mods) )
+//   {
+//
+//       // Move the camera 
+//       if (key == GLFW_KEY_A)
+//       {
+//           // Go left
+//           ::g_cameraEye.x -= CAMERA_MOVE_SPEED;
+//   //        ::g_cameraTarget.x -= CAMERA_SPEED;
+//       }
+//       if (key == GLFW_KEY_D)
+//       {
+//           // Go right
+//           ::g_cameraEye.x += CAMERA_MOVE_SPEED;
+//   //        ::g_cameraTarget.x += CAMERA_SPEED;
+//       }
+//
+//       if (key == GLFW_KEY_W)
+//       {
+//           // Go forward
+//           ::g_cameraEye.z -= CAMERA_MOVE_SPEED;
+//   //        ::g_cameraTarget.x -= CAMERA_SPEED;
+//       }
+//       if (key == GLFW_KEY_S)
+//       {
+//           // Go back
+//           ::g_cameraEye.z += CAMERA_MOVE_SPEED;
+//   //        ::g_cameraTarget.x += CAMERA_SPEED;
+//       }
+//
+//       if (key == GLFW_KEY_Q)
+//       {
+//           // Go down
+//           ::g_cameraEye.y -= CAMERA_MOVE_SPEED;
+//   //        ::g_cameraTarget.x -= CAMERA_SPEED;
+//       }
+//       if (key == GLFW_KEY_E)
+//       {
+//           // Go up
+//           ::g_cameraEye.y += CAMERA_MOVE_SPEED;
+//   //        ::g_cameraTarget.x += CAMERA_SPEED;
+//       }
+//   }// if ( ! areAnyModifiersDown(mods) )
     return;
 }
