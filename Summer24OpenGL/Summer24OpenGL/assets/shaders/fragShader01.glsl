@@ -50,12 +50,19 @@ uniform vec3 eyeLocation;
 // If true, then we DON'T calcualte the light contrib
 // bool is really a float
 uniform bool bDoNotLight;
+uniform bool bUseTextureAsColour;
 
 //uniform vec3 ambientLightColour;
 
 
 // Texture stuff
-uniform sampler2D texture01;
+uniform sampler2D textures00;
+uniform sampler2D textures01;
+uniform sampler2D textures02;
+uniform sampler2D textures03;
+
+// And so on... (the other 4 textures)
+uniform vec4 textureRatios_0_to_3;	
 
 
 vec4 calcualteLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal, 
@@ -63,25 +70,45 @@ vec4 calcualteLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal,
 
 void main()
 {
-//	gl_FragColor = vec4(color, 1.0);
-	
-//	pixelColour = vec4( color, 1.0f );
+
 	pixelColour = vertexColour;
+	pixelColour.a = alphaTransparency;
 	
 	// 
-	pixelColour.rgb *= 0.0001f;	// Goes black
+//	pixelColour.rgb *= 0.0001f;	// Goes black
 //	pixelColour.r += vertexUV.s;		// u or x
 //	pixelColour.g += vertexUV.t;		// v or y
 	
-	// Get colour from the texture
-	vec3 texColorRGB = texture(texture01, vertexUV.st).rgb;
+	if ( bUseTextureAsColour )
+	{
+		// Get colour from the texture
+//uniform sampler2D textures00;
+//uniform sampler2D textures01;
+//uniform sampler2D textures02;
+//uniform sampler2D textures03;
+//uniform vec4 textureRatios_0_to_3;			
+		
+		// Sample the image
+		
+		vec3 texColorRGB = 
+				  texture(textures00, vertexUV.st).rgb * textureRatios_0_to_3.x
+				+ texture(textures01, vertexUV.st).rgb * textureRatios_0_to_3.y
+				+ texture(textures02, vertexUV.st).rgb * textureRatios_0_to_3.z
+				+ texture(textures03, vertexUV.st).rgb * textureRatios_0_to_3.w;
+		
+		// Clear the current colour
+		pixelColour.rgb = texColorRGB.rgb;
+		
+//		if ( texColorRGB.r > 0.2f )
+//		{
+//			discard;
+//		}
+	}
 	
-	pixelColour.rgb += texColorRGB.rgb;
 	
 	if ( bDoNotLight )
 	{
 		// Early exit. don't do light calculation
-		pixelColour.a = alphaTransparency;
 		return;
 	}
 	
@@ -91,19 +118,14 @@ void main()
 	// And goes to whatever... like 10,000 or 100,000
 //	vec4 vertexSpecular = vec4(1.0f, 1.0f, 1.0f, 100.0f);
 
-	vec4 lightContrib = calcualteLightContrib( vertexColour.rgb, 
+	vec4 lightContrib = calcualteLightContrib( pixelColour.rgb, 
 	                                           vertexNormal.xyz, 
 	                                           vertexWorldPosition.xyz,
 	                                           vertexSpecular );
 											   
 	pixelColour.rgb = lightContrib.rgb;
 	
-	
-	pixelColour.a = 0.5f;
-//	pixelColour.a = alphaTransparency;
-	
-//	vec3 ambientLightColour = vec3(0.1f, 0.1f, 0.1f);
-//	pixelColour.rgb += ambientLightColour.rgb;
+	pixelColour.a = alphaTransparency;
 
 }
 

@@ -91,6 +91,8 @@ struct sModelDrawInfo
 	sVert_xyzw_n_RGBA_uv* pVertices;
 	// The index buffer (CPU side)
 	unsigned int* pIndices;
+
+
 };
 
 
@@ -100,7 +102,9 @@ public:
 
 	bool LoadModelIntoVAO(std::string fileName, 
 						  sModelDrawInfo &drawInfo, 
-						  unsigned int shaderProgramID);
+						  unsigned int shaderProgramID = 0,
+						  bool bGenerateSphericalUVs = false);
+
 
 	// Here's an option to load various models using boolean flags:
 	bool LoadModelIntoVAO(std::string fileName,
@@ -121,6 +125,8 @@ public:
 
 	std::string getLastError(bool bAndClear = true);
 
+
+
 private:
 
 	std::map< std::string /*model name*/,
@@ -129,10 +135,20 @@ private:
 
 	// Loads the ply model file into a temporary array
 	bool m_LoadTheModel( std::string fileName, 
-						 sModelDrawInfo &drawInfo);
+						 sModelDrawInfo &drawInfo,
+						 bool bGenerateSphericalUVs);
 
 	std::string m_lastErrorString;
 	void m_AppendTextToLastError(std::string text, bool addNewLineBefore = true);
+
+	// These are needed for the call below
+	enum enumTEXCOORDBIAS
+	{
+		POSITIVE_X, POSITIVE_Y, POSITIVE_Z
+	};
+	void m_GenTextureCoordsSpherical(sModelDrawInfo& meshInfo,
+									 enumTEXCOORDBIAS uBias, enumTEXCOORDBIAS vBias,
+									 bool basedOnNormals, float scale, bool fast);
 };
 
 #endif	// _cVAOManager_HG_

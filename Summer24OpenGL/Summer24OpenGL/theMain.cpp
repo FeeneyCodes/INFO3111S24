@@ -47,6 +47,8 @@ void LoadFilesIntoVAOManager(GLuint program);
 //std::vector< cMeshObject* > g_MeshesToDraw;
 void LoadModelsIntoScene(void);
 
+void LoadTextures(cBasicTextureManager* pTextureManager);
+
 
 cShaderManager* g_pTheShaderManager = NULL;     // Actual thing is on the HEAP
 //cShaderManager TheShaderManager;                // Stack
@@ -176,21 +178,8 @@ int main(void)
 
     ::g_TextureManager = new cBasicTextureManager();
 
-    ::g_TextureManager->SetBasePath("assets/textures");
-    if ( ::g_TextureManager->Create2DTextureFromBMPFile("beyonce.bmp", true) )
-    {
-        std::cout << "Loaded beyonce.bmp OK" << std::endl;
-    }
-    //if ( ::g_TextureManager->Create2DTextureFromBMPFile("Dungeons_2_Texture_01_A.png", true) )
-    //{
-    //    std::cout << "Dungeons_2_Texture_01_A.png OK" << std::endl;
-    //}
-    if ( ::g_TextureManager->Create2DTextureFromBMPFile("Dungeons_2_Texture_01_A.bmp", true) )
-    {
-        std::cout << "Dungeons_2_Texture_01_A.bmp OK" << std::endl;
-    } 
+    LoadTextures(::g_TextureManager);
 
-//    ::g_TextureManager->getTextureIDFromName("beyonce.bmp");
 
 
 
@@ -211,25 +200,26 @@ int main(void)
     std::cout << cLightManager::NUMBEROFLIGHTS << std::endl;
     std::cout << ::g_pLights->NUMBEROFLIGHTS << std::endl;
 
-
     // 
-    ::g_pLights->theLights[0].position = glm::vec4(7.0f, 14.0f, -2.0f, 1.0f);
+    ::g_pLights->theLights[0].position = glm::vec4(0.0f, 100.0f, 98.0f, 1.0f);
     // White light (flourescent) light
 //    ::g_pLights->theLights[0].diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
     // https://www.google.com/search?q=rgb+of+sunlight&oq=rgb+of+sunli&gs_lcrp=EgZjaHJvbWUqBwgAEAAYgAQyBwgAEAAYgAQyBggBEEUYOTINCAIQABiGAxiABBiKBTINCAMQABiGAxiABBiKBTINCAQQABiGAxiABBiKBTINCAUQABiGAxiABBiKBTIKCAYQABiABBiiBKgCALACAQ&sourceid=chrome&ie=UTF-8
     //255, 222, 131
-    ::g_pLights->theLights[0].diffuse = glm::vec4(255.0f/255.0f, 
-                                                  222.0f/255.0f, 
-                                                  131.0f/255.0f, 
+    //::g_pLights->theLights[0].diffuse = glm::vec4(255.0f/255.0f, 
+    //                                              222.0f/255.0f, 
+    //                                              131.0f/255.0f, 
+    //                                              1.0f);
+    ::g_pLights->theLights[0].diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 
                                                   1.0f);
     // Turn on
 //    ::g_pLights->theLights[0].turnOn();
     ::g_pLights->theLights[0].param2.x = 1.0f;  // Turn on
     // Set the attenuation
     ::g_pLights->theLights[0].atten.x = 0.0f;   // Constant
-    ::g_pLights->theLights[0].atten.y = 0.02f;   // Linear
-    ::g_pLights->theLights[0].atten.z = 0.005f;   // Quadratic
+    ::g_pLights->theLights[0].atten.y = 0.00158f;   // Linear
+    ::g_pLights->theLights[0].atten.z = 8.45e-05f;   // Quadratic
     //
     ::g_pLights->theLights[0].param1.x = 0.0f;  // Point light
 //    ::g_pLights->theLights[0].param1.x = 1.0f;  // Spot light
@@ -310,6 +300,20 @@ int main(void)
 
        //mat4x4_mul(mvp, p, m);
 //        mvp = p * v * m;
+
+
+        // Blend from wall to Beyonce
+        cMeshObject* pGround = g_findMeshByFriendlyName("The Ground");
+        if ( pGround )
+        {
+            if (pGround->textureBlendRatio[0] >= 0.0f )
+            {
+                // It's there
+                pGround->textureBlendRatio[0] -= 0.0001f;
+                pGround->textureBlendRatio[1] += 0.0001f;
+            }
+        }
+
 
 
         // aim the spotlight at the cow
@@ -454,6 +458,9 @@ int main(void)
             // The centre of the light
             ::g_pSmoothSphere->scale = 0.1f;
             ::g_pSmoothSphere->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+            ::g_pSmoothSphere->bOverrideVertexModelColour = true;
+            ::g_pSmoothSphere->bDoNotLight = true;
+            ::g_pSmoothSphere->bUseTextureAsColour = false;
             ::g_pSmoothSphere->position = ::g_pLights->theLights[::g_selectedLightIndex].position;
             DrawMesh(::g_pSmoothSphere, program);
 
@@ -553,421 +560,4 @@ int main(void)
     exit(EXIT_SUCCESS);
 }
 
-void LoadFilesIntoVAOManager(GLuint program)
-{
-//    sModelDrawInfo meshInfoCow;
-//    if (!::g_pMeshManager->LoadModelIntoVAO("assets/models/cow_xyz_n_rgba.ply", meshInfoCow, program))
-//    {
-//        std::cout << "ERROR: Didn't load the cow" << std::endl;
-//    }
-//
-//    sModelDrawInfo carMeshInfo;
-//    if (!::g_pMeshManager->LoadModelIntoVAO("assets/models/de--lorean_xyz_n_rgba.ply", carMeshInfo, program))
-//    {
-//        std::cout << "ERROR: Didn't load the cow" << std::endl;
-//    }
-//
-//    sModelDrawInfo teapotMeshInfo;
-//    if (!::g_pMeshManager->LoadModelIntoVAO("assets/models/Utah_Teapot_xyz_rgba.ply", teapotMeshInfo, program))
-//    {
-//        std::cout << "ERROR: Didn't load the cow" << std::endl;
-//    }
-//
-//    sModelDrawInfo dolphinMesh;
-//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/dolphin_xyz_n_rgba.ply", dolphinMesh, program))
-//    {
-//        std::cout << "loaded: "
-//            << dolphinMesh.meshName << " "
-//            << dolphinMesh.numberOfVertices << " vertices" << std::endl;
-//    }
-//
-//    sModelDrawInfo terrainMesh;
-////    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply", terrainMesh, program))
-//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/output.ply", terrainMesh, program))
-//    {
-//        std::cout << "loaded: "
-//            << terrainMesh.meshName << " "
-//            << terrainMesh.numberOfVertices << " vertices" << std::endl;
-//    }
-//
-//
-//    sModelDrawInfo wearhouseMesh;
-//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Warehouse_xyz_n_rgba.ply", wearhouseMesh, program))
-//    {
-//        std::cout << "loaded: "
-//            << wearhouseMesh.meshName << " "
-//            << wearhouseMesh.numberOfVertices << " vertices" << std::endl;
-//    }
-//
-//    sModelDrawInfo sphereMesh;
-//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Isoshphere_flat_4div_xyz_n_rgba.ply", sphereMesh, program))
-//    {
-//        std::cout << "loaded: "
-//            << sphereMesh.meshName << " "
-//            << sphereMesh.numberOfVertices << " vertices" << std::endl;
-//    }
-//
-//    sModelDrawInfo sphereMeshInverted;
-//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Isoshphere_smooth_inverted_normals_xyz_n_rgba.ply", sphereMesh, program))
-//    {
-//        std::cout << "loaded: "
-//            << sphereMeshInverted.meshName << " "
-//            << sphereMeshInverted.numberOfVertices << " vertices" << std::endl;
-//    }
-//
-//    sModelDrawInfo skullMesh;
-//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Dead bodies, etc/SM_Item_Skull_01_no_UV.ply", sphereMesh, program))
-//    {
-//        std::cout << "loaded: "
-//            << skullMesh.meshName << " "
-//            << skullMesh.numberOfVertices << " vertices" << std::endl;
-//    }
-//    sModelDrawInfo floorlMesh;
-//    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Floors/SM_Env_Dwarf_Floor_07_no_UV.ply", sphereMesh, program))
-//    {
-//        std::cout << "loaded: "
-//            << floorlMesh.meshName << " "
-//            << floorlMesh.numberOfVertices << " vertices" << std::endl;
-//    }
 
-
-    sModelDrawInfo DwarfMesh;
-    if (::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Dwarf_01.ply", DwarfMesh, program))
-    {
-        std::cout << "loaded: "
-            << DwarfMesh.meshName << " "
-            << DwarfMesh.numberOfVertices << " vertices" << std::endl;
-    }
-
-    return;
-}
-
-void LoadModelsIntoScene(void)
-{
-    cMeshObject* pDwarf = new cMeshObject();
-    pDwarf->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Dwarf_01.ply";
-    pDwarf->scale = 0.1f;
-//    pDwarf->bDoNotLight = true;
-    pDwarf->position.z = 10.0f;
-    pDwarf->position.y = -10.0f;
-    pDwarf->texture00Name = "Dungeons_2_Texture_01_A.bmp";
-    ::g_MeshesToDraw.push_back(pDwarf);
-
-    cMeshObject* pDwarf2 = new cMeshObject();
-    pDwarf2->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Dwarf_01.ply";
-    pDwarf2->scale = 0.1f;
-//    pDwarf2->bDoNotLight = true;
-    pDwarf2->position.z = 10.0f;
-    pDwarf2->position.x = 15.0f;
-    pDwarf2->position.y = -10.0f;
-    pDwarf2->texture00Name = "beyonce.bmp";
-    ::g_MeshesToDraw.push_back(pDwarf2);   
-    
-    // 
-    // 
-    //cMeshObject* pFloor = new cMeshObject();
-    //pFloor->meshFileName = "assets/models/Dungeon_models/Floors/SM_Env_Dwarf_Floor_07_no_UV.ply";
-    ////pFloor->bIsWireFrame = true;
-    //pFloor->position.y = -5.0f;
-    //pFloor->position.x = 10.0f;
-    //pFloor->bOverrideVertexModelColour = true;
-    //pFloor->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
-    //pFloor->scale = 0.025f;
-    //::g_MeshesToDraw.push_back(pFloor);
-
-    //cMeshObject* pSkull = new cMeshObject();
-    //pSkull->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Item_Skull_01_no_UV.ply";
-    ////pSkull->bIsWireFrame = true;
-    //pSkull->bOverrideVertexModelColour = true;
-    //pSkull->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
-    //pSkull->scale = 15.0f;
-    //::g_MeshesToDraw.push_back(pSkull);
-
-
-    ::g_pSmoothSphere = new cMeshObject();
-    ::g_pSmoothSphere->meshFileName = "assets/models/Isoshphere_flat_4div_xyz_n_rgba.ply";
-//    ::g_pSmoothSphere->meshFileName = "assets/models/Isoshphere_smooth_inverted_normals_xyz_n_rgba.ply";
-    ::g_pSmoothSphere->bIsWireFrame = true;
-    ::g_pSmoothSphere->bOverrideVertexModelColour = true;
-    ::g_pSmoothSphere->colourRGB = glm::vec3(1.0f);
-    ::g_pSmoothSphere->scale = 1.0f;
-    ::g_pSmoothSphere->bIsVisible = true;
-//    ::g_MeshesToDraw.push_back(::g_pSmoothSphere);
-
-
-
-    cMeshObject* pCow2 = new cMeshObject();
-    pCow2->meshFileName = "assets/models/cow_xyz_n_rgba.ply";
-//    pCow2->bIsWireFrame = false;
-    pCow2->position.x = +10.0f;
-    pCow2->scale = 0.5f;
-    pCow2->orientation.z = glm::radians(-45.0f);
-    pCow2->bOverrideVertexModelColour = true;
-    pCow2->colourRGB = glm::vec3(0.0f, 1.0f, 0.0f);
-    ::g_MeshesToDraw.push_back(pCow2);
-
-
-    cMeshObject* pCar = new cMeshObject();
-    pCar->meshFileName = "assets/models/de--lorean_xyz_n_rgba.ply";
-    pCar->orientation.x = glm::radians(-90.0f);
-    //pCar->position.z = 0.0f;
-    //pCar->position.y = 0.0f;
-    pCar->scale = 0.5f;
-    pCar->shinniness = 1000.0f;  // 1 = 'flat' like dry clay -- to millions
-//    pCar->bIsWireFrame = true;
-    pCar->bIsVisible = true;
-    pCar->alphaTransparency = 0.5f;
-    ::g_MeshesToDraw.push_back(pCar);
-
-    //cMeshObject* pDolphin = new cMeshObject();
-    //pDolphin->meshFileName = "assets/models/dolphin_xyz_n_rgba.ply";
-    //pDolphin->scale = 0.01f;
-    //::g_MeshesToDraw.push_back(pDolphin);
-
-
-    cMeshObject* pTerrain = new cMeshObject();
-    pTerrain->meshFileName = "assets/models/fractalTerrainMeshLab_xyz_n_rgba.ply";
-    //pTerrain->meshFileName = "assets/models/output.ply";
-    pTerrain->position.y = -30.0f;
-//    pTerrain->bIsWireFrame = true;
-    ::g_MeshesToDraw.push_back(pTerrain);
-
-    cMeshObject* pWarehouse = new cMeshObject();
-    pWarehouse->meshFileName = "assets/models/Warehouse_xyz_n_rgba.ply";
-//    pWarehouse->bIsWireFrame = true;
-    pWarehouse->position.y = -10.0f;
-    pWarehouse->orientation.y = glm::radians(-90.0f);
-    //
-    pWarehouse->bOverrideVertexModelColour = true;
-    // rgb(68, 109, 122)
-    pWarehouse->colourRGB = glm::vec3(68.0f / 255.0f, 109.0f / 255.0f, 122.0f / 255.0f);
-    ::g_MeshesToDraw.push_back(pWarehouse);
-
-   // Load the models I'd like to draw in the scene
-    cMeshObject* pCow = new cMeshObject();
-    pCow->meshFileName = "assets/models/cow_xyz_n_rgba.ply";
-    pCow->bIsWireFrame = false;
-    pCow->position.x = -10.f;
-    pCow->friendlyName = "George";
-    pCow->alphaTransparency = 0.65f;
-    ::g_MeshesToDraw.push_back(pCow);
-
-
-
-    return;
-}
-
-void DrawMesh(cMeshObject* pCurrentMesh, GLuint shaderProgram)
-{
-                // Is it visible?
-    if (!pCurrentMesh->bIsVisible)
-    {
-        // Skip it
-        //continue;
-        return;
-    }
-
-
-//         mat4x4_identity(m);
-    glm::mat4 matModel = glm::mat4(1.0f);
-
-    glm::mat4 matTranslation = glm::translate(glm::mat4(1.0f),
-                                              pCurrentMesh->position);
-
-    // Euler axes
-    glm::mat4 matRotateX = glm::rotate(glm::mat4(1.0f),
-                                       pCurrentMesh->orientation.x,
-                                       glm::vec3(1.0f, 0.0f, 0.0f));
-
-    glm::mat4 matRotateY = glm::rotate(glm::mat4(1.0f),
-                                       pCurrentMesh->orientation.y,
-                                       glm::vec3(0.0f, 1.0f, 0.0f));
-
-    glm::mat4 matRotateZ = glm::rotate(glm::mat4(1.0f),
-                                       pCurrentMesh->orientation.z,
-                                       glm::vec3(0.0f, 0.0f, 1.0f));
-
-    glm::mat4 matScaleXYZ = glm::scale(glm::mat4(1.0f),
-                                       glm::vec3(pCurrentMesh->scale,
-                                                 pCurrentMesh->scale,
-                                                 pCurrentMesh->scale));
-
-//            // For normals, we could keep track of only the rotation
-//            glm::mat4 matRotationOnly = matRotateX * matRotateY * matRotateZ;
-
-            // The order of these is important
-            // 1 * 4 * 12 * 3 = 12 * 4 * 12 * 3
-    matModel = matModel * matTranslation;
-
-    matModel = matModel * matRotateX;
-    matModel = matModel * matRotateY;
-    matModel = matModel * matRotateZ;
-
-    matModel = matModel * matScaleXYZ;
-
-
-    ////mat4x4_rotate_Z(m, m, (float) glfwGetTime());
-    //glm::mat4 rotateZ = glm::rotate(glm::mat4(1.0f),
-    //                                (float)glfwGetTime(),
-    //                                glm::vec3(0.0f, 0.0, 1.0f));
-
-//        m = m * rotateZ;
-
-
-
-        //glUseProgram(program);
-
-        // GL_LINE gives you "wireframe"
-        // GL_FILL is default (fully rendered)
-    if (pCurrentMesh->bIsWireFrame)
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    else
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
-//            glPointSize(10);
-
-
-
-    //GLint mProj_location = glGetUniformLocation(program, "mProj");
-    //GLint mView_location = glGetUniformLocation(program, "mView");
-
-    //glUniformMatrix4fv(mProj_location, 1, GL_FALSE,
-    //                   glm::value_ptr(matProjection));
-
-    //glUniformMatrix4fv(mView_location, 1, GL_FALSE,
-    //                   glm::value_ptr(matView));
-
-    GLint mModel_location = glGetUniformLocation(shaderProgram, "mModel");
-
-    glUniformMatrix4fv(mModel_location, 1, GL_FALSE,
-                       glm::value_ptr(matModel));
-
-    // We need this for lighting
-    // uniform mat4 mModel_InverseTranspose;
-    GLint mModelIT_location = glGetUniformLocation(shaderProgram, "mModel_InverseTranspose");
-
-    // Calculate the "inverse transpose of the model matrix"
-    // Gets rid of any translation (movement) and scaling,
-    //  leaving only the rotation transformation
-    // (We use this for the normal)
-    glm::mat4 matModelIT = glm::inverse(glm::transpose(matModel));
-
-    glUniformMatrix4fv(mModelIT_location, 1, GL_FALSE,
-                       glm::value_ptr(matModelIT));
-
-
-    // Do I override the vertex colour
-    GLint colourOverride_UL = glGetUniformLocation(shaderProgram, "colourOverride");
-    GLint bUseOverrideColour_UL = glGetUniformLocation(shaderProgram, "bUseOverrideColour");
-
-    if (pCurrentMesh->bOverrideVertexModelColour)
-    {
-        glUniform3f(colourOverride_UL,              // uniform vec3 colourOverride;	
-                    pCurrentMesh->colourRGB.r,
-                    pCurrentMesh->colourRGB.g,
-                    pCurrentMesh->colourRGB.b);
-
-        // All types are really floats, so a bool is really a single float
-        glUniform1f(bUseOverrideColour_UL, (GLfloat)GL_TRUE);       // or 1.0
-    }
-    else
-    {
-        // All types are really floats, so a bool is really a single float
-        glUniform1f(bUseOverrideColour_UL, (GLfloat)GL_FALSE);       // or 0
-    }
-
-    // Copy over the specular value
-    // uniform vec4 vertexSpecular;
-    GLint vertexSpecular_UL = glGetUniformLocation(shaderProgram, "vertexSpecular");
-    glUniform4f(vertexSpecular_UL,
-                pCurrentMesh->specularHighlightColour.r,
-                pCurrentMesh->specularHighlightColour.g,
-                pCurrentMesh->specularHighlightColour.b,
-                pCurrentMesh->shinniness);
-
-
-    if (pCurrentMesh->alphaTransparency < 1.0f )
-    {
-        // it's transparent
-
-        // Alpha transparency
-        // We can enable or disable this any time (no performance hit)
-        glEnable(GL_BLEND);
-        // Takes some number form the 1st param
-        // ...does something based on 2nd param
-        // NOTE: This only needs to be set once
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        // Set the transparency in the shader
-        // uniform float alphaTransparency;
-
-        GLint alphaTransparency_UL = glGetUniformLocation(shaderProgram, "alphaTransparency");
-        // Use the transparency from the mesh
-        glUniform1f(alphaTransparency_UL, pCurrentMesh->alphaTransparency);
-    }
-    else
-    {
-        // it's solid
-        glDisable(GL_BLEND);
-    }
-
-
-    // Turn off lighting?
-    // uniform bool bDoNotLight
-    GLint bDoNotLight_UL = glGetUniformLocation(shaderProgram, "bDoNotLight");
-
-    if ( pCurrentMesh->bDoNotLight )
-    {
-//        glUniform1f(bDoNotLight_UL, 1.0f);
-        glUniform1f(bDoNotLight_UL, (GLfloat)GL_TRUE);
-    }
-    else
-    {
-//        glUniform1f(bDoNotLight_UL, 0.0f);
-        glUniform1f(bDoNotLight_UL, (GLfloat)GL_FALSE);
-
-    }
-
-
-    // Set up the last step in the texture.
-    // Connect the texture in the GPU with the sampler in the shader
-    // 
-
-
-//
-    // GLuint getTextureIDFromName( std::string textureFileName );
-//    GLuint dungeonTextID = ::g_TextureManager->getTextureIDFromName("Dungeons_2_Texture_01_A.bmp");
-    GLuint dungeonTextID = ::g_TextureManager->getTextureIDFromName( pCurrentMesh->texture00Name );
-
-    // Texture binding...
-    GLuint texture21Unit = 21;			// Texture unit go from 0 to 79
-    glActiveTexture(GL_TEXTURE0 + texture21Unit);	// GL_TEXTURE0 = 33984
-    glBindTexture(GL_TEXTURE_2D, dungeonTextID);
-
-    // uniform sampler2D texture01;
-    GLint texture01_UL =  glGetUniformLocation(shaderProgram, "texture01");
-    // Set texture unit in the shader, too
-    glUniform1i(texture01_UL, texture21Unit);
-//
-//    glBindTextureUnit( 21, dungeonTextID );	// OpenGL 4.5+ only
-
-
-    sModelDrawInfo modelInfo;
-    if (::g_pMeshManager->FindDrawInfoByModelName(pCurrentMesh->meshFileName, modelInfo))
-    {
-        // Found it!
-        glBindVertexArray(modelInfo.VAO_ID);
-
-        glDrawElements(GL_TRIANGLES,
-                       modelInfo.numberOfIndices,
-                       GL_UNSIGNED_INT,
-                       (void*)0);
-
-        glBindVertexArray(0);
-    }
-
-    return;
-}

@@ -40,8 +40,8 @@ void main()
 	
 	// Sent normal to the fragment shader, too
 //	vertexNormal = mModel_InverseTranspose * vec4(vNormal.xyz, 1.0f);
-	vertexNormal = normalize(mModel_InverseTranspose * vec4(vNormal.xyz, 1.0f));
-
+	vertexNormal = mModel_InverseTranspose * vec4(vNormal.xyz, 1.0f);
+	vertexNormal.xyz = normalize(vertexNormal.xyz);
 	
 	// Like multiplying by 1.0
 //	gl_Position = sm * vec4( vPosition, 1.0f);

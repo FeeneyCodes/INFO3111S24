@@ -12,6 +12,17 @@ cMeshObject::cMeshObject()
 
 	this->bDoNotLight = false;
 
+	this->bUseTextureAsColour = true;
+
+	// 
+	this->textureBlendRatio[0] = 0.0f;
+	this->textureBlendRatio[1] = 0.0f;
+	this->textureBlendRatio[2] = 0.0f;
+	this->textureBlendRatio[3] = 0.0f;
+	this->textureBlendRatio[4] = 0.0f;
+	this->textureBlendRatio[5] = 0.0f;
+	this->textureBlendRatio[6] = 0.0f;
+	this->textureBlendRatio[7] = 0.0f;
 
 	this->bIsWireFrame = false;	// true;
 	this->bIsVisible = true;

@@ -80,8 +80,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 
 
-    // BYPASS THE REST
-    return;
+    //// BYPASS THE REST
+    //return;
 
     const float OBJECT_MOVE_SPEED = 0.5f;
     const float LIGHT_MOVE_SPEED = 0.5f;

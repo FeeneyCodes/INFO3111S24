@@ -43,7 +43,10 @@ public:
 	bool bDoNotLight;
 
 	// We'll have 8 textures eventually
-	std::string texture00Name;
+	bool bUseTextureAsColour;
+	static const unsigned int NUM_TEXTURES = 8;
+	std::string textureNames[NUM_TEXTURES];
+	float textureBlendRatio[NUM_TEXTURES];		// From 0 to 1.0f
 
 
 	// This is some name we can give it
