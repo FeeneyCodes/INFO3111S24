@@ -36,8 +36,9 @@
 extern unsigned int g_selectedLightIndex;
 
 
-glm::vec3 g_cameraEye = glm::vec3(0.0, 12.0f, -39.0f);
-glm::vec3 g_cameraTarget = glm::vec3(0.0, 0.0, 0.0f);
+//glm::vec3 g_cameraEye = glm::vec3(0.0, 12.0f, -39.0f);
+//glm::vec3 g_cameraTarget = glm::vec3(0.0, 0.0, 0.0f);
+cBasicFlyCamera* g_pFlyCamera = NULL;
 
 extern unsigned int g_selectedObjectIndex;
 
@@ -65,6 +66,7 @@ cMeshObject* g_pSmoothSphere = NULL;
 extern bool g_ShowLightDebugSphereThings;
 
 void handleKeyboardAsync(GLFWwindow* window);
+void handleMouseAsync(GLFWwindow* window);
 
 
 cMeshObject* g_findMeshByFriendlyName( std::string theName )
@@ -89,8 +91,26 @@ static void error_callback(int error, const char* description)
 //     void function_name(GLFWwindow* window, int key, int scancode, int action, int mods)
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
+// Set the callbacks for the mouse
+// https://www.glfw.org/docs/3.3/input_guide.html#input_mouse
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+// Set with glfwSetCursorPosCallback(window, cursor_position_callback);
+
+void cursor_enter_callback(GLFWwindow* window, int entered);
+// Set with glfwSetCursorEnterCallback(window, cursor_enter_callback);
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+// Set with glfwSetMouseButtonCallback(window, mouse_button_callback);
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+// Set with glfwSetScrollCallback(window, scroll_callback);
+
 
 void DrawMesh(cMeshObject* pCurrentMesh, GLuint shaderProgram);
+
+// HACK:
+float cameraRotationAngleChangePerFrame = 0.1f;
 
 int main(void)
 {
@@ -110,6 +130,7 @@ int main(void)
     //GLint vpos_location;
     //GLint vcol_location;
 
+
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
     {
@@ -126,11 +147,35 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
+    // Make the camrea BEFORE connecting the mouse and keyboard callbacks
+    ::g_pFlyCamera = new cBasicFlyCamera();
+
+    ::g_pFlyCamera->setEyeLocation(0.0f, 0.0f, +20.0f);
+
+
     glfwSetKeyCallback(window, key_callback);
+
+    // Also set the mouse callback functions
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetCursorEnterCallback(window, cursor_enter_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     glfwMakeContextCurrent(window);
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     glfwSwapInterval(1);
+
+
+    if (glfwRawMouseMotionSupported())
+    {
+        std::cout << "DOES handle raw mouse motion" << std::endl;
+        
+        //glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+    else
+    {
+        std::cout << "Does NOT handle raw mouse motion" << std::endl;
+    }
 
 
 
@@ -284,19 +329,54 @@ int main(void)
 
         glm::mat4 matView = glm::mat4(1.0f);
 
+
+//        // Pivot the camera
+//        cMeshObject* pCameraModel = ::g_findMeshByFriendlyName("Camera");
+//        cMeshObject* pCameraTargetBall = ::g_findMeshByFriendlyName("CameraTargetBall");
+//        if (pCameraModel && pCameraTargetBall)
+//        {
+//            pCameraModel->orientation.y += glm::radians(cameraRotationAngleChangePerFrame);
+//            pCameraTargetBall->orientation.y += glm::radians(cameraRotationAngleChangePerFrame);
+//
+//            // Check limits
+//            if (pCameraModel->orientation.y >= glm::radians(45.0f))
+//            {
+//                cameraRotationAngleChangePerFrame = -0.1f;
+//            }
+//            if (pCameraModel->orientation.y <= glm::radians(-45.0f))
+//            {
+//                cameraRotationAngleChangePerFrame = +0.15f;
+//            }
+//
+////            // Set the eye where the camera is
+////            ::g_cameraEye = pCameraModel->position;
+////            // Set the target (at) where the sphere (in front of the camera) is
+////            ::g_cameraTarget = pCameraTargetBall->position;
+//        }
+
+
 //        glm::vec3 cameraEye = glm::vec3(   0.0,   0.0, -20.0f);
 //        glm::vec3 cameraTarget = glm::vec3(0.0f, -5.0f, 20.0f);
         glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        matView = glm::lookAt(::g_cameraEye,
-                              ::g_cameraTarget,
+        //matView = glm::lookAt(::g_cameraEye,
+        //                      ::g_cameraTarget,
+        //                      upVector);
+        matView = glm::lookAt(::g_pFlyCamera->getEyeLocation(),
+                              ::g_pFlyCamera->getTargetLocation(),
                               upVector);
 
         GLint eyeLocation_UL = glGetUniformLocation(program, "eyeLocation");
+        //glUniform3f(eyeLocation_UL, 
+        //            ::g_cameraEye.x,
+        //            ::g_cameraEye.y,
+        //            ::g_cameraEye.z);
         glUniform3f(eyeLocation_UL, 
-                    ::g_cameraEye.x,
-                    ::g_cameraEye.y,
-                    ::g_cameraEye.z);
+                    ::g_pFlyCamera->getEyeLocation().x,
+                    ::g_pFlyCamera->getEyeLocation().y,
+                    ::g_pFlyCamera->getEyeLocation().z);
+
+
 
        //mat4x4_mul(mvp, p, m);
 //        mvp = p * v * m;
@@ -525,9 +605,9 @@ int main(void)
 //        std::cout 
         ssWindowsTitle
             << "Camera (xyz)"
-            << ::g_cameraEye.x << ", "
-            << ::g_cameraEye.y << ", "
-            << ::g_cameraEye.z
+            << ::g_pFlyCamera->getEyeLocation().x << ", "       // << ::g_cameraEye.x
+            << ::g_pFlyCamera->getEyeLocation().y << ", "       // << ::g_cameraEye.y
+            << ::g_pFlyCamera->getEyeLocation().z << ", "       // << ::g_cameraEye.z
             << "  "
             << "light#0: "
             << ::g_pLights->theLights[0].position.x << ", "
@@ -551,6 +631,7 @@ int main(void)
 
         //
         handleKeyboardAsync(window);
+        handleMouseAsync(window);
 
     }
 

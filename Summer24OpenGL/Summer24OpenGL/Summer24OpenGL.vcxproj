@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cBasicFlyCamera\cBasicFlyCamera.cpp" />
     <ClCompile Include="cBasicTextureManager\C24BitBMPpixel.cpp" />
     <ClCompile Include="cBasicTextureManager\cBasicTextureManager.cpp" />
     <ClCompile Include="cBasicTextureManager\CTextureFromBMP.cpp" />
@@ -155,6 +156,7 @@
     <ClCompile Include="theMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cBasicFlyCamera\cBasicFlyCamera.h" />
     <ClInclude Include="cBasicTextureManager\C24BitBMPpixel.h" />
     <ClInclude Include="cBasicTextureManager\cBasicTextureManager.h" />
     <ClInclude Include="cBasicTextureManager\CTextureFromBMP.h" />

@@ -28,6 +28,9 @@
     <Filter Include="Texture">
       <UniqueIdentifier>{963e4eba-9ab0-43f7-aaf8-27e97488522d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="cBasicFlyCamera">
+      <UniqueIdentifier>{5b05fe41-efa5-40a3-942f-5c7a2932f1e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="theMain.cpp">
@@ -78,6 +81,9 @@
     <ClCompile Include="DrawMesh_function.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cBasicFlyCamera\cBasicFlyCamera.cpp">
+      <Filter>cBasicFlyCamera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cShaderManager\cShaderManager.h">
@@ -109,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="cBasicTextureManager\CTextureFromBMP.h">
       <Filter>Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="cBasicFlyCamera\cBasicFlyCamera.h">
+      <Filter>cBasicFlyCamera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

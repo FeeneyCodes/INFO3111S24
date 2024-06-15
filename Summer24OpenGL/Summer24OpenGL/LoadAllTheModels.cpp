@@ -136,18 +136,55 @@ void LoadFilesIntoVAOManager(GLuint program)
                                        flatQuad,
                                        program);     
 
+//    sModelDrawInfo cameraMesh;
+//    ::g_pMeshManager->LoadModelIntoVAO("assets/models/video_camera_aligned_to_z_zxis_WITH_sphere.ply",
+//                                       cameraMesh,
+//                                       program);     
+    sModelDrawInfo ballInFrontOfCameraMesh;
+    ::g_pMeshManager->LoadModelIntoVAO("assets/models/Isoshphere_in_front_of_camera.ply",
+                                       ballInFrontOfCameraMesh,
+                                       program);     
+    sModelDrawInfo cameraMesh;
+    ::g_pMeshManager->LoadModelIntoVAO("assets/models/video_camera_aligned_to_z_zxis_triangles.ply",
+                                       cameraMesh,
+                                       program);     
+
     return;
 }
 
 void LoadModelsIntoScene(void)
 {
 
+    cMeshObject* pCameraModel = new cMeshObject();
+//    pCameraModel->meshFileName = "assets/models/video_camera_aligned_to_z_zxis_WITH_sphere.ply";
+    pCameraModel->meshFileName = "assets/models/video_camera_aligned_to_z_zxis_triangles.ply";
+    pCameraModel->bIsWireFrame = true;
+    pCameraModel->bDoNotLight = true;
+    pCameraModel->bOverrideVertexModelColour = true;
+    pCameraModel->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+    pCameraModel->bUseTextureAsColour = false;
+    pCameraModel->friendlyName = "Camera";
+    //pCameraModel->textureNames[0] = "beyonce.bmp";
+    //pCameraModel->scale = 0.75f;
+    ::g_MeshesToDraw.push_back(pCameraModel);
+
+    cMeshObject* pCameraTargetBall = new cMeshObject();
+    pCameraTargetBall->meshFileName = "assets/models/Isoshphere_in_front_of_camera.ply";
+    pCameraTargetBall->bIsWireFrame = true;
+    pCameraTargetBall->bDoNotLight = true;
+    pCameraTargetBall->bOverrideVertexModelColour = true;
+    pCameraTargetBall->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
+    pCameraTargetBall->bUseTextureAsColour = false;
+    pCameraTargetBall->friendlyName = "CameraTargetBall";
+    ::g_MeshesToDraw.push_back(pCameraTargetBall);
+
+
     cMeshObject* pTeaPot = new cMeshObject();
     pTeaPot->meshFileName = "assets/models/Utah_Teapot_xyz_n_rgba_uv.ply";
     pTeaPot->textureNames[0] = "beyonce.bmp";
     pTeaPot->scale = 0.75f;
     pTeaPot->orientation.x = glm::radians(-90.0f);
-    pTeaPot->position.z = 50.0f;
+    pTeaPot->position.z = 150.0f;
     ::g_MeshesToDraw.push_back(pTeaPot);
 
 
@@ -155,7 +192,7 @@ void LoadModelsIntoScene(void)
     pDwarf->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Dwarf_01.ply";
     pDwarf->scale = 0.1f;
 //    pDwarf->bDoNotLight = true;
-    pDwarf->position.z = 10.0f;
+    pDwarf->position.z = 60.0f;
     pDwarf->position.y = -10.0f;
     pDwarf->textureNames[0] = "Dungeons_2_Texture_01_A.bmp";
     pDwarf->textureBlendRatio[0] = 1.0f;
@@ -166,7 +203,7 @@ void LoadModelsIntoScene(void)
     pDwarf2->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Dwarf_01.ply";
     pDwarf2->scale = 0.1f;
 //    pDwarf2->bDoNotLight = true;
-    pDwarf2->position.z = 10.0f;
+    pDwarf2->position.z = 60.0f;
     pDwarf2->position.x = 15.0f;
     pDwarf2->position.y = -10.0f;
 
