@@ -236,6 +236,9 @@ int main(void)
 //    glCullFace(GL_BACK);
 
 
+    ::g_pFlyCamera->setEyeLocation(38.4765f, 47.9442f, 41.7282f);
+
+
     // Create the "light manager"
     ::g_pLights = new cLightManager();
 
@@ -246,7 +249,7 @@ int main(void)
     std::cout << ::g_pLights->NUMBEROFLIGHTS << std::endl;
 
     // 
-    ::g_pLights->theLights[0].position = glm::vec4(0.0f, 100.0f, 98.0f, 1.0f);
+    ::g_pLights->theLights[0].position = glm::vec4(0.0f, 41.5f, 98.0f, 98.0f);
     // White light (flourescent) light
 //    ::g_pLights->theLights[0].diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -263,8 +266,9 @@ int main(void)
     ::g_pLights->theLights[0].param2.x = 1.0f;  // Turn on
     // Set the attenuation
     ::g_pLights->theLights[0].atten.x = 0.0f;   // Constant
-    ::g_pLights->theLights[0].atten.y = 0.00158f;   // Linear
-    ::g_pLights->theLights[0].atten.z = 8.45e-05f;   // Quadratic
+    ::g_pLights->theLights[0].atten.y = 0.0333305f;   // Linear
+    ::g_pLights->theLights[0].atten.z = 0.0002894f;   // Quadratic
+
     //
     ::g_pLights->theLights[0].param1.x = 0.0f;  // Point light
 //    ::g_pLights->theLights[0].param1.x = 1.0f;  // Spot light
@@ -302,6 +306,18 @@ int main(void)
     ::g_pLights->theLights[2].atten.x = 0.0f;   // Constant
     ::g_pLights->theLights[2].atten.y = 0.02f;   // Linear
     ::g_pLights->theLights[2].atten.z = 0.005f;   // Quadratic
+
+
+//    // Directional light BEWARE!!!!
+//    ::g_pLights->theLights[3].param1.x = 2.0f;  // const int DIRECTIONAL_LIGHT_TYPE = 2;
+//    ::g_pLights->theLights[3].direction = glm::vec4(0.9f, -0.1f, 0.0f, 1.0f);
+//    ::g_pLights->theLights[3].turnOn();
+//    ::g_pLights->theLights[3].diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+//
+//    // Turn the other ones off
+//    ::g_pLights->theLights[0].turnOff();
+//    ::g_pLights->theLights[1].turnOff();
+//    ::g_pLights->theLights[2].turnOff();
 
     // Main loop runs forever
     while ( ! glfwWindowShouldClose(window) )

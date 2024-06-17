@@ -149,6 +149,15 @@ void LoadFilesIntoVAOManager(GLuint program)
                                        cameraMesh,
                                        program);     
 
+    sModelDrawInfo DeadBody_NomadMesh;
+    ::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Nomad_02.ply",
+                                       DeadBody_NomadMesh,
+                                       program);     
+    sModelDrawInfo SM_Env_Crystals_Cluster_Large_01Mesh;
+    ::g_pMeshManager->LoadModelIntoVAO("assets/models/Dungeon_models/Crystals/SM_Env_Crystals_Cluster_Large_01.ply",
+                                       SM_Env_Crystals_Cluster_Large_01Mesh,
+                                       program);     
+
     return;
 }
 
@@ -182,9 +191,11 @@ void LoadModelsIntoScene(void)
     cMeshObject* pTeaPot = new cMeshObject();
     pTeaPot->meshFileName = "assets/models/Utah_Teapot_xyz_n_rgba_uv.ply";
     pTeaPot->textureNames[0] = "beyonce.bmp";
+    pTeaPot->textureBlendRatio[0] = 1.0f;
     pTeaPot->scale = 0.75f;
     pTeaPot->orientation.x = glm::radians(-90.0f);
     pTeaPot->position.z = 150.0f;
+    pTeaPot->shinniness = 100.0f;
     ::g_MeshesToDraw.push_back(pTeaPot);
 
 
@@ -197,6 +208,9 @@ void LoadModelsIntoScene(void)
     pDwarf->textureNames[0] = "Dungeons_2_Texture_01_A.bmp";
     pDwarf->textureBlendRatio[0] = 1.0f;
 
+    pDwarf->specularHighlightColour = glm::vec3(0.0f, 0.0f, 0.0f);
+    pDwarf->shinniness = 1.0f;
+
     ::g_MeshesToDraw.push_back(pDwarf);
 
     cMeshObject* pDwarf2 = new cMeshObject();
@@ -207,11 +221,47 @@ void LoadModelsIntoScene(void)
     pDwarf2->position.x = 15.0f;
     pDwarf2->position.y = -10.0f;
 
-    pDwarf2->textureNames[0] = "beyonce.bmp";
+    pDwarf2->textureNames[0] = "Dungeons_2_Texture_01_A.bmp";
     pDwarf2->textureBlendRatio[0] = 1.0f;
+
+    pDwarf->shinniness = 100.0f;
 
     pDwarf2->bUseTextureAsColour = true;
     ::g_MeshesToDraw.push_back(pDwarf2);
+
+
+
+    cMeshObject* pDeadBody_Nomad = new cMeshObject();
+    pDeadBody_Nomad->meshFileName = "assets/models/Dungeon_models/Dead bodies, etc/SM_Prop_DeadBody_Nomad_02.ply";
+    pDeadBody_Nomad->scale = 0.1f;
+//    pDwarf->bDoNotLight = true;
+    pDeadBody_Nomad->position.z = 60.0f;
+    pDeadBody_Nomad->position.y = 10.0f;
+    pDeadBody_Nomad->textureNames[0] = "Dungeons_2_Texture_01_A.bmp";
+    pDeadBody_Nomad->textureBlendRatio[0] = 1.0f;
+
+    pDeadBody_Nomad->specularHighlightColour = glm::vec3(0.0f, 0.0f, 0.0f);
+    pDeadBody_Nomad->shinniness = 1.0f;
+
+    ::g_MeshesToDraw.push_back(pDeadBody_Nomad);
+
+
+
+    cMeshObject* pCrystals_Cluster_Large_01 = new cMeshObject();
+    pCrystals_Cluster_Large_01->meshFileName = "assets/models/Dungeon_models/Crystals/SM_Env_Crystals_Cluster_Large_01.ply";
+    pCrystals_Cluster_Large_01->scale = 0.05f;
+//    pDwarf->bDoNotLight = true;
+    pCrystals_Cluster_Large_01->position.z = 40.0f;
+    pCrystals_Cluster_Large_01->position.x = 20.0f;
+    pCrystals_Cluster_Large_01->textureNames[0] = "Dungeons_2_Texture_01_A.bmp";
+    pCrystals_Cluster_Large_01->textureBlendRatio[0] = 1.0f;
+
+    pCrystals_Cluster_Large_01->alphaTransparency = 0.5f;
+
+//    pCrystals_Cluster_Large_01->specularHighlightColour = glm::vec3(0.0f, 0.0f, 0.0f);
+    pCrystals_Cluster_Large_01->shinniness = 100.0f;
+
+    ::g_MeshesToDraw.push_back(pCrystals_Cluster_Large_01);
 
 
     cMeshObject* pGround = new cMeshObject();
@@ -219,7 +269,8 @@ void LoadModelsIntoScene(void)
     pGround->meshFileName = "assets/models/LargeFlatQuad.ply";
 //    pGround->texture00Name = "SlothInSpace.bmp";
 
-    pGround->textureNames[0] = "white-brick-wall-seamless-texture-free.bmp";
+    pGround->textureNames[0] = "Dungeons_2_Texture_01_A.bmp";
+//    pGround->textureNames[0] = "white-brick-wall-seamless-texture-free.bmp";
     pGround->textureBlendRatio[0] = 1.0f;
 
     pGround->textureNames[1] = "beyonce.bmp";
