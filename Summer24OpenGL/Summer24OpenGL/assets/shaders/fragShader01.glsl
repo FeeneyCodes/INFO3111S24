@@ -97,26 +97,26 @@ void main()
 	}
 	
 	// HACK: Make everything chrome
-	
-	vec3 rayforTextureLookup = vertexNormal.xyz;
-	
+//	
+//	vec3 rayforTextureLookup = vertexNormal.xyz;
+//	
 //	rayforTextureLookup = -rayforTextureLookup;
-	vec3 eyeToVertex = eyeLocation.xyz - vertexWorldPosition.xyz;
-	// Make this a length of 1.0 ("normalized")
-	eyeToVertex = normalize(eyeToVertex);
-	
-	vec3 reflectRay = reflect(eyeToVertex, vertexNormal.xyz);
-	vec3 refractRay = refract(eyeToVertex, vertexNormal.xyz, 1.1f);
-
-	vec3 vertColourReflect = texture(skyBoxTexture, reflectRay).rgb;
-	vec3 vertColourRefract = texture(skyBoxTexture, refractRay).rgb;
-	
-	vec3 vertColour = (vertColourReflect * 0.5f) +
-	                  (vertColourRefract * 0.5f);
-	
-	pixelColour.rgb = vertColour;
-	pixelColour.a = 0.6f;
-	return;
+//	vec3 eyeToVertex = eyeLocation.xyz - vertexWorldPosition.xyz;
+//	// Make this a length of 1.0 ("normalized")
+//	eyeToVertex = normalize(eyeToVertex);
+//	
+//	vec3 reflectRay = reflect(eyeToVertex, vertexNormal.xyz);
+//	vec3 refractRay = refract(eyeToVertex, vertexNormal.xyz, 1.1f);
+//
+//	vec3 vertColourReflect = texture(skyBoxTexture, reflectRay).rgb;
+//	vec3 vertColourRefract = texture(skyBoxTexture, refractRay).rgb;
+//	
+//	vec3 vertColour = (vertColourReflect * 0.5f) +
+//	                  (vertColourRefract * 0.5f);
+//	
+//	pixelColour.rgb = vertColour;
+//	pixelColour.a = 0.6f;
+//	return;
 
 	
 	// 

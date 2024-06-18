@@ -15,3 +15,12 @@ extern cMeshObject* g_pSmoothSphere;
 
 extern cLightManager* g_pLights;// = NULL;
 
+enum eState
+{
+    SUNSET,         // Is getting darker
+    SUNRISE,        // Is getting brighter
+    IS_DAY,         // Is full day (brightest)
+    IS_NIGHT        // Is night time (darkest)
+};
+
+extern eState g_DayNightState;

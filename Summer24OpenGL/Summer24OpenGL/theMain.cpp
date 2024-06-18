@@ -586,6 +586,45 @@ int main(void)
         }
 
 
+//        L:0.00249			Light
+//        Q:0.00028
+//        L:0.057			Dark
+//        Q:0.000821
+        float numFrames = 60.0f * 60.0f * 5.0f; // 60FPS * 5 seconds
+        float linearAttenChange = (0.057f - 0.00249f) / numFrames;
+        float quadAttenChange = (0.000821f - 0.00028f) / numFrames;
+
+        // Handle the day night cycle
+        // See what state we are in
+        switch (::g_DayNightState)
+        {
+        case SUNSET:
+            // Make it darker
+            ::g_pLights->theLights[0].atten.y += linearAttenChange;
+            ::g_pLights->theLights[0].atten.z += quadAttenChange;
+            // Dark enough? 
+            if (::g_pLights->theLights[0].atten.y >= 0.057f)
+            {
+                ::g_DayNightState = IS_NIGHT;
+            }
+            break;
+        case SUNRISE:
+            // Make it lighter
+            ::g_pLights->theLights[0].atten.y -= linearAttenChange;
+            ::g_pLights->theLights[0].atten.z -= quadAttenChange;
+            if (::g_pLights->theLights[0].atten.y <= 0.00249f)
+            {
+                ::g_DayNightState = IS_DAY;
+            }
+            break;
+        //case IS_DAY:
+        //    ::g_DayNightState = SUNSET;
+        //    break;
+        //case IS_NIGHT:
+        //    ::g_DayNightState = SUNRISE;
+        //    break;
+        }
+
 
 
 

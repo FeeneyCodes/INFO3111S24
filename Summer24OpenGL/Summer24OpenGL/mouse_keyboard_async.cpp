@@ -9,6 +9,16 @@
 
 //extern glm::vec3 g_cameraEye;
 
+//enum eState
+//{
+//    SUNSET,         // Is getting darker
+//    SUNRISE,        // Is getting brighter
+//    IS_DAY,         // Is full day (brightest)
+//    IS_NIGHT        // Is night time (darkest)
+//};
+
+eState g_DayNightState = IS_DAY;
+
 struct sMouseState
 {
     glm::ivec2 currentPositionXY = glm::ivec2(0, 0);

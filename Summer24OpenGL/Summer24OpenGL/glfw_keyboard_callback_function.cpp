@@ -351,8 +351,34 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 
     // Are all modifiers up?
-//   if ( ! areAnyModifiersDown(mods) )
-//   {
+   if ( ! areAnyModifiersDown(mods) )
+   {
+        //enum eState
+        //{
+        //    SUNSET,         // Is getting darker
+        //    SUNRISE,        // Is getting brighter
+        //    IS_DAY,         // Is full day (brightest)
+        //    IS_NIGHT        // Is night time (darkest)
+        //};
+       if (key == GLFW_KEY_T /*&& action == GLFW_KEY_DOWN*/ )
+       {
+           // See what state we are in
+           switch (::g_DayNightState )
+           {
+           case SUNSET:
+               break;
+           case SUNRISE:
+               break;
+           case IS_DAY:
+               ::g_DayNightState = SUNSET;
+               break;
+           case IS_NIGHT:
+               ::g_DayNightState = SUNRISE;
+               break;
+           }
+
+       }// if (key == GLFW_KEY_T
+
 //
 //       // Move the camera 
 //       if (key == GLFW_KEY_A)
@@ -393,6 +419,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 //           ::g_cameraEye.y += CAMERA_MOVE_SPEED;
 //   //        ::g_cameraTarget.x += CAMERA_SPEED;
 //       }
-//   }// if ( ! areAnyModifiersDown(mods) )
+
+
+   }// if ( ! areAnyModifiersDown(mods) )
     return;
 }
