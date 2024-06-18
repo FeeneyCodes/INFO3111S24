@@ -14,6 +14,7 @@
 extern cBasicTextureManager* g_TextureManager;
 extern cVAOManager* g_pMeshManager;
 
+
 void DrawMesh(cMeshObject* pCurrentMesh, GLuint shaderProgram)
 {
                 // Is it visible?

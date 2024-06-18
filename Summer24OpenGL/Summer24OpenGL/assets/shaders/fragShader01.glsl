@@ -52,6 +52,9 @@ uniform vec3 eyeLocation;
 uniform bool bDoNotLight;
 uniform bool bUseTextureAsColour;
 
+// If true, then it's a skybox 
+uniform bool bIsSkyBox;
+
 //uniform vec3 ambientLightColour;
 
 
@@ -64,6 +67,9 @@ uniform sampler2D textures03;
 // And so on... (the other 4 textures)
 uniform vec4 textureRatios_0_to_3;	
 
+// The skybox texture (cube map texture)
+uniform samplerCube skyBoxTexture;
+
 
 vec4 calcualteLightContrib( vec3 vertexMaterialColour, vec3 vertexNormal, 
                             vec3 vertexWorldPos, vec4 vertexSpecular );
@@ -73,6 +79,22 @@ void main()
 
 	pixelColour = vertexColour;
 	pixelColour.a = alphaTransparency;
+	
+
+	if ( bIsSkyBox )
+	{
+		// Do some stuff
+//		pixelColour.rgb = vec3( 0.0f, 1.0f, 1.0f);
+
+		// Notice that this takes 3 texture coords
+		// Which is s, t, u 
+		// (or x, y, z)
+		vec3 texColorRGB = texture(skyBoxTexture, vertexNormal.xyz).rgb;
+
+		pixelColour.rgb = texColorRGB;
+		pixelColour.a = 1.0f;
+		return;
+	}
 	
 	// 
 //	pixelColour.rgb *= 0.0001f;	// Goes black

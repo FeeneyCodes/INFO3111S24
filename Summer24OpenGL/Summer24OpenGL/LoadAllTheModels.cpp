@@ -9,6 +9,9 @@
 
 extern cVAOManager* g_pMeshManager;
 
+// This will be our "skybox" object
+cMeshObject* g_pSkyBoxSphere = NULL;
+
 void LoadTextures(cBasicTextureManager* pTextureManager)
 {
     pTextureManager->SetBasePath("assets/textures");
@@ -30,6 +33,44 @@ void LoadTextures(cBasicTextureManager* pTextureManager)
 
     // You can load as many textures as you have RAM 
     pTextureManager->Create2DTextureFromBMPFile("white-brick-wall-seamless-texture-free.bmp", true);
+
+
+    // Load the cube map (skybox) texture
+    pTextureManager->SetBasePath("assets/textures/cubemap_textures");
+    std::string loadError;
+    if ( pTextureManager->CreateCubeTextureFromBMPFiles( "SunnyDay", 
+                                                        "TropicalSunnyDayRight2048.bmp",
+                                                        "TropicalSunnyDayLeft2048.bmp",
+                                                        "TropicalSunnyDayUp2048.bmp",
+                                                        "TropicalSunnyDayDown2048.bmp",
+                                                        "TropicalSunnyDayFront2048.bmp",
+                                                        "TropicalSunnyDayBack2048.bmp", 
+                                                        true,
+                                                        loadError) )
+    {
+        std::cout << "Tropical sunny day cube map loaded OK" << std::endl;
+    }
+    else
+    {
+        std::cout << "Error: Didn't load cube map because: " << loadError << std::endl;
+    }
+
+    if ( pTextureManager->CreateCubeTextureFromBMPFiles( "Space", 
+                                                        "SpaceBox_right1_posX.bmp",
+                                                        "SpaceBox_left2_negX.bmp",
+                                                        "SpaceBox_top3_posY.bmp",
+                                                        "SpaceBox_bottom4_negY.bmp",
+                                                        "SpaceBox_front5_posZ.bmp",
+                                                        "SpaceBox_back6_negZ.bmp", 
+                                                        true,
+                                                        loadError) )
+    {
+        std::cout << "Space cube map loaded OK" << std::endl;
+    }
+    else
+    {
+        std::cout << "Error: Didn't load cube map because: " << loadError << std::endl;
+    }
 
 
     return;
@@ -158,11 +199,32 @@ void LoadFilesIntoVAOManager(GLuint program)
                                        SM_Env_Crystals_Cluster_Large_01Mesh,
                                        program);     
 
+    // Load the skybox object
+    sModelDrawInfo skyboxSphereMesh;
+    ::g_pMeshManager->LoadModelIntoVAO("assets/models/Isoshphere_smooth_inverted_normals_xyz_n_rgba_uv.ply",
+                                       skyboxSphereMesh,
+                                       program);     
+
+
     return;
 }
 
 void LoadModelsIntoScene(void)
 {
+
+    ::g_pSkyBoxSphere = new cMeshObject();
+    ::g_pSkyBoxSphere->meshFileName = "assets/models/Isoshphere_smooth_inverted_normals_xyz_n_rgba_uv.ply";
+    //::g_pSkyBoxSphere->bIsWireFrame = true;
+    //::g_pSkyBoxSphere->bDoNotLight = true;
+    //::g_pSkyBoxSphere->bOverrideVertexModelColour = true;
+    //::g_pSkyBoxSphere->colourRGB = glm::vec3(0.0f, 1.0f, 1.0f);
+    //::g_pSkyBoxSphere->bUseTextureAsColour = false;
+    //::g_pSkyBoxSphere->position.x = 5.0f;
+    //::g_pSkyBoxSphere->scale = 10.0f;
+    //::g_MeshesToDraw.push_back(::g_pSkyBoxSphere);
+
+
+
 
     cMeshObject* pCameraModel = new cMeshObject();
 //    pCameraModel->meshFileName = "assets/models/video_camera_aligned_to_z_zxis_WITH_sphere.ply";

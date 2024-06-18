@@ -35,6 +35,9 @@
 
 extern unsigned int g_selectedLightIndex;
 
+// This will be our "skybox" object
+extern cMeshObject* g_pSkyBoxSphere;// = NULL;
+
 
 //glm::vec3 g_cameraEye = glm::vec3(0.0, 12.0f, -39.0f);
 //glm::vec3 g_cameraTarget = glm::vec3(0.0, 0.0, 0.0f);
@@ -535,6 +538,53 @@ int main(void)
         //    ::g_MeshesToDraw[1]->colourRGB = glm::vec3(1.0f, 1.0f, 1.0f);
         //    DrawMesh(::g_MeshesToDraw[1], program);
         //}
+
+
+        // Draw the skybox
+        if ( ::g_pSkyBoxSphere )
+        {
+            // Turn "on" the skybox
+            // uniform bool bIsSkyBox;
+            GLint bIsSkyBox_UL = glGetUniformLocation(program, "bIsSkyBox");
+            glUniform1f(bIsSkyBox_UL, (GLfloat)GL_TRUE);
+
+            // Set the skybox texture, too
+            // uniform samplerCube skyBoxTexture;
+
+            // EXACTLY the same as a 2D texture, except for 
+            // the GL_TEXTURE_CUBE_MAP when binding
+
+//            GLuint skyboxTextureID = ::g_TextureManager->getTextureIDFromName("SunnyDay");
+            GLuint skyboxTextureID = ::g_TextureManager->getTextureIDFromName("Space");
+            GLuint texture30Unit = 30;			// Texture unit go from 0 to 79
+            glActiveTexture(GL_TEXTURE0 + texture30Unit);	// GL_TEXTURE0 = 33984
+            // NOTE: This isn't a GL_TEXTURE_2D
+            glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureID);
+            GLint skyBoxTexture_UL = glGetUniformLocation(program, "skyBoxTexture");
+            glUniform1i(skyBoxTexture_UL, texture30Unit);
+
+            // Two ways:
+            // 1. (correct, bougie way)
+            //      Turn off the depth buffer comparison
+            //      Tuen off writing to the depth buffer
+            //      Move the sphere to the camera
+            //      Draw the teeny weeny sphere 
+            //      Turn everything back on 
+            //      Render as usual
+            //
+            // 2. Move the sphere to the camera
+            //    Make it big enough to hold everything
+            //    (like in the horizon)
+
+            ::g_pSkyBoxSphere->scale = 5'000.0f;
+            ::g_pSkyBoxSphere->position = ::g_pFlyCamera->getEyeLocation();
+
+            DrawMesh(::g_pSkyBoxSphere, program);
+
+            // Turn "off" the skybox rendering
+            glUniform1f(bIsSkyBox_UL, (GLfloat)GL_FALSE);
+        }
+
 
 
 
