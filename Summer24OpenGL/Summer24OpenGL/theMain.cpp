@@ -554,8 +554,8 @@ int main(void)
             // EXACTLY the same as a 2D texture, except for 
             // the GL_TEXTURE_CUBE_MAP when binding
 
-//            GLuint skyboxTextureID = ::g_TextureManager->getTextureIDFromName("SunnyDay");
-            GLuint skyboxTextureID = ::g_TextureManager->getTextureIDFromName("Space");
+            GLuint skyboxTextureID = ::g_TextureManager->getTextureIDFromName("SunnyDay");
+//            GLuint skyboxTextureID = ::g_TextureManager->getTextureIDFromName("Space");
             GLuint texture30Unit = 30;			// Texture unit go from 0 to 79
             glActiveTexture(GL_TEXTURE0 + texture30Unit);	// GL_TEXTURE0 = 33984
             // NOTE: This isn't a GL_TEXTURE_2D
